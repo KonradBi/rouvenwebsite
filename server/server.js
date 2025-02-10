@@ -24,11 +24,27 @@ const SPREADSHEET_ID = process.env.SPREADSHEET_ID; // Sie müssen diese ID in .e
 const RANGE = 'Newsletter!A:B'; // Passt das an Ihre Spreadsheet-Struktur an
 
 async function getGoogleSheetAuth() {
-    const auth = new google.auth.GoogleAuth({
-        keyFile: path.join(serverDir, 'credentials.json'), // Sie müssen diese Datei von Google Cloud Console herunterladen
-        scopes: SCOPES,
-    });
-    return auth;
+    try {
+        let credentials;
+        if (process.env.GOOGLE_CREDENTIALS) {
+            // Parse credentials directly from environment variable
+            credentials = typeof process.env.GOOGLE_CREDENTIALS === 'string' 
+                ? JSON.parse(process.env.GOOGLE_CREDENTIALS)
+                : process.env.GOOGLE_CREDENTIALS;
+        } else {
+            // Fallback to local credentials file
+            credentials = require('./credentials.json');
+        }
+
+        const auth = new google.auth.GoogleAuth({
+            credentials: credentials,
+            scopes: SCOPES,
+        });
+        return auth;
+    } catch (error) {
+        console.error('Error getting Google Sheets auth:', error);
+        throw error;
+    }
 }
 
 async function appendToSheet(email) {
