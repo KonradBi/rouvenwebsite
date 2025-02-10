@@ -1755,11 +1755,14 @@ section {
 
 /* Entferne die alte Animation */
 @keyframes pulseColor {
-    display: none;
+    0% { color: var(--color-black); }
+    50% { color: var(--color-sage); }
+    100% { color: var(--color-black); }
 }
 
 @keyframes lineGrow {
-    display: none;
+    from { width: 0; }
+    to { width: 100%; }
 }
 
 .large-initial {
@@ -1833,50 +1836,63 @@ section {
 /* Impressum & Datenschutz Styles */
 .impressum-section,
 .datenschutz-section {
-    padding: 6rem 0;
-}
-
-.impressum-content,
-.datenschutz-content {
+    padding: 4rem 0;
     max-width: 800px;
     margin: 0 auto;
 }
 
+.impressum-content,
+.datenschutz-content {
+    padding: 0 2rem;
+}
+
 .impressum-section h1,
 .datenschutz-section h1 {
-    font-size: 3rem;
-    margin-bottom: 3rem;
-    color: var(--color-black);
+    font-size: 2.5rem;
+    margin-bottom: 2rem;
+    text-transform: none;
 }
 
 .impressum-content h2,
 .datenschutz-content h2 {
     font-size: 1.8rem;
-    margin: 2.5rem 0 1.5rem;
-    color: var(--color-black);
+    margin: 2rem 0 1rem;
+    text-transform: none;
 }
 
 .impressum-content h3,
-.datenschutz-content h3,
-.datenschutz-content h4 {
+.datenschutz-content h3 {
     font-size: 1.4rem;
-    margin: 2rem 0 1rem;
+    margin: 1.5rem 0 0.75rem;
+    text-transform: none;
+    color: var(--color-sage);
+}
+
+.impressum-content h4,
+.datenschutz-content h4 {
+    font-size: 1.2rem;
+    margin: 1rem 0 0.5rem;
+    text-transform: none;
     color: var(--color-black);
 }
 
 .impressum-content p,
-.datenschutz-content p {
-    margin-bottom: 1.5rem;
+.datenschutz-content p,
+.datenschutz-content ul {
+    margin-bottom: 1rem;
     line-height: 1.6;
-    color: var(--color-gray);
+}
+
+.datenschutz-content ul {
+    padding-left: 1.5rem;
+    margin-top: 0.5rem;
 }
 
 .back-link {
     display: inline-block;
-    margin-top: 3rem;
+    margin-top: 2rem;
     color: var(--color-sage);
     text-decoration: none;
-    font-family: 'Courier New', monospace;
     transition: color 0.3s ease;
 }
 
@@ -1887,22 +1903,24 @@ section {
 @media (max-width: 768px) {
     .impressum-section,
     .datenschutz-section {
-        padding: 4rem 0;
+        padding: 2rem 0;
     }
 
     .impressum-section h1,
     .datenschutz-section h1 {
-        font-size: 2.5rem;
+        font-size: 2rem;
+        margin-bottom: 1.5rem;
     }
 
     .impressum-content h2,
     .datenschutz-content h2 {
-        font-size: 1.6rem;
+        font-size: 1.5rem;
+        margin: 1.5rem 0 0.75rem;
     }
 
     .impressum-content h3,
-    .datenschutz-content h3,
-    .datenschutz-content h4 {
-        font-size: 1.3rem;
+    .datenschutz-content h3 {
+        font-size: 1.2rem;
+        margin: 1rem 0 0.5rem;
     }
 }
