@@ -2,6 +2,7 @@ const express = require('express');
 // const { Resend } = require('resend');
 const cors = require('cors');
 const path = require('path');
+const { google } = require('googleapis');
 require('dotenv').config();
 
 const app = express();
@@ -16,6 +17,47 @@ const serverDir = path.resolve(__dirname);
 const websiteRoot = path.resolve(serverDir, '..');
 console.log('Server directory:', serverDir);
 console.log('Website root directory:', websiteRoot);
+
+// Google Sheets setup
+const SCOPES = ['https://www.googleapis.com/auth/spreadsheets'];
+const SPREADSHEET_ID = process.env.SPREADSHEET_ID; // Sie müssen diese ID in .env setzen
+const RANGE = 'Newsletter!A:B'; // Passt das an Ihre Spreadsheet-Struktur an
+
+async function getGoogleSheetAuth() {
+    const auth = new google.auth.GoogleAuth({
+        keyFile: path.join(serverDir, 'credentials.json'), // Sie müssen diese Datei von Google Cloud Console herunterladen
+        scopes: SCOPES,
+    });
+    return auth;
+}
+
+async function appendToSheet(email) {
+    try {
+        const auth = await getGoogleSheetAuth();
+        const sheets = google.sheets({ version: 'v4', auth });
+
+        const values = [
+            [new Date().toISOString(), email], // Datum und E-Mail
+        ];
+
+        const resource = {
+            values,
+        };
+
+        const result = await sheets.spreadsheets.values.append({
+            spreadsheetId: SPREADSHEET_ID,
+            range: RANGE,
+            valueInputOption: 'RAW',
+            resource,
+        });
+
+        console.log('Neue E-Mail zur Liste hinzugefügt:', email);
+        return true;
+    } catch (error) {
+        console.error('Fehler beim Hinzufügen zur Google Sheet:', error);
+        return false;
+    }
+}
 
 // Serve static files from the root path
 app.use('/', express.static(websiteRoot));
@@ -50,6 +92,39 @@ app.post('/api/contact', async (req, res) => {
     }
 });
 */
+
+// Newsletter subscription endpoint
+app.post('/api/newsletter', async (req, res) => {
+    try {
+        const { email } = req.body;
+        
+        // Validate email
+        if (!email || !email.includes('@')) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Ungültige E-Mail-Adresse' 
+            });
+        }
+
+        // Add to Google Sheet
+        const success = await appendToSheet(email);
+
+        if (success) {
+            res.json({ 
+                success: true, 
+                message: 'Vielen Dank für Ihre Anmeldung zum Newsletter!' 
+            });
+        } else {
+            throw new Error('Failed to add to spreadsheet');
+        }
+    } catch (error) {
+        console.error('Newsletter subscription error:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'Ein Fehler ist aufgetreten. Bitte versuchen Sie es später erneut.' 
+        });
+    }
+});
 
 // Temporary contact form endpoint
 app.post('/api/contact', (req, res) => {
