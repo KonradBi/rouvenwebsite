@@ -17,9 +17,8 @@ const websiteRoot = path.resolve(serverDir, '..');
 console.log('Server directory:', serverDir);
 console.log('Website root directory:', websiteRoot);
 
-// Serve static files - try both with and without /rouven-webseite prefix
+// Serve static files from the root path
 app.use('/', express.static(websiteRoot));
-app.use('/rouven-webseite', express.static(websiteRoot));
 
 /* Contact form functionality temporarily disabled
 // Initialize Resend
