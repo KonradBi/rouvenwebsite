@@ -139,7 +139,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let isAnimating = false;
     let autoRotationInterval;
     let userInteracted = false;
-    const AUTO_ROTATION_DELAY = 5000; // 5 Sekunden zwischen Rotationen
+    const AUTO_ROTATION_DELAY = 8000; // Increased from 5000 to 8000 milliseconds
 
     // Erstelle Navigationspunkte
     const navigation = document.createElement('div');
@@ -219,13 +219,14 @@ document.addEventListener('DOMContentLoaded', () => {
         // Allow next animation after transition
         setTimeout(() => {
             isAnimating = false;
-        }, 800);
+        }, 1000); // Increased from 800 to 1000 milliseconds
     }
 
     // Start auto-rotation when the section is in view
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
+                userInteracted = false; // Reset user interaction when section comes into view
                 startAutoRotation();
             } else {
                 pauseAutoRotation();

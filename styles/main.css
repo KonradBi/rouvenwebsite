@@ -199,6 +199,7 @@ section:not(.hero-section):not(#about) h2 {
     width: 80px;
     height: 80px;
     animation: fadeInRotate 1.2s ease-out;
+    margin-bottom: 40px;
 }
 
 .hero-logo img {
