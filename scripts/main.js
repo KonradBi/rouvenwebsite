@@ -133,40 +133,176 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Text-Sequence Animation
     const sequenceItems = document.querySelectorAll('.sequence-item');
-    const footnote = document.querySelector('.sequence-footnote');
+    const textSequenceSection = document.querySelector('#text-sequence');
     let currentStep = 0;
     const totalSteps = sequenceItems.length;
+    let isAnimating = false;
+    let autoRotationInterval;
+    let userInteracted = false;
+    const AUTO_ROTATION_DELAY = 5000; // 5 Sekunden zwischen Rotationen
 
-    // Setze erste Sequenz sofort sichtbar
-    sequenceItems[0].classList.add('active');
-
-    function showSequenceStep(step) {
-        // Entferne zuerst die aktive Klasse von allen Items
-        sequenceItems.forEach(item => {
-                item.classList.remove('active');
+    // Erstelle Navigationspunkte
+    const navigation = document.createElement('div');
+    navigation.className = 'sequence-navigation';
+    sequenceItems.forEach((_, index) => {
+        const dot = document.createElement('div');
+        dot.className = `sequence-dot${index === 0 ? ' active' : ''}`;
+        dot.addEventListener('click', () => {
+            if (!isAnimating && index !== currentStep) {
+                pauseAutoRotation();
+                updateSequence(index > currentStep ? 'next' : 'prev', index);
+                restartAutoRotationAfterDelay();
+            }
         });
+        navigation.appendChild(dot);
+    });
+    textSequenceSection.querySelector('.sequence-container').appendChild(navigation);
 
-        // Warte kurz, bevor das neue Item angezeigt wird
-        setTimeout(() => {
-            sequenceItems[step].classList.add('active');
-        }, 500);
+    // Setze erste Sequenz
+    sequenceItems[0].classList.add('active');
+    if (sequenceItems[1]) sequenceItems[1].classList.add('next');
+    if (sequenceItems[totalSteps - 1]) sequenceItems[totalSteps - 1].classList.add('prev');
 
-        if (step === totalSteps - 1) {
-            setTimeout(() => {
-                footnote.classList.add('active');
-            }, 1000);
-        } else {
-            footnote.classList.remove('active');
+    function startAutoRotation() {
+        if (!autoRotationInterval) {
+            autoRotationInterval = setInterval(() => {
+                if (!userInteracted && !isAnimating) {
+                    updateSequence('next');
+                }
+            }, AUTO_ROTATION_DELAY);
         }
     }
 
-    function nextSequenceStep() {
-        currentStep = (currentStep + 1) % totalSteps;
-        showSequenceStep(currentStep);
+    function pauseAutoRotation() {
+        userInteracted = true;
+        if (autoRotationInterval) {
+            clearInterval(autoRotationInterval);
+            autoRotationInterval = null;
+        }
     }
 
-    // Starte Sequenz mit längerem Intervall
-    setInterval(nextSequenceStep, 6000); // Erhöht von 4000 auf 6000 ms
+    function restartAutoRotationAfterDelay() {
+        setTimeout(() => {
+            userInteracted = false;
+            startAutoRotation();
+        }, AUTO_ROTATION_DELAY);
+    }
+
+    function updateSequence(direction, targetIndex = null) {
+        if (isAnimating) return;
+        isAnimating = true;
+
+        const prevStep = currentStep;
+        if (targetIndex !== null) {
+            currentStep = targetIndex;
+        } else {
+            currentStep = direction === 'next' 
+                ? (currentStep + 1) % totalSteps 
+                : (currentStep - 1 + totalSteps) % totalSteps;
+        }
+
+        // Update navigation dots
+        document.querySelectorAll('.sequence-dot').forEach((dot, index) => {
+            dot.classList.toggle('active', index === currentStep);
+        });
+
+        // Remove all transition classes
+        sequenceItems.forEach(item => {
+            item.classList.remove('active', 'prev', 'next');
+        });
+
+        // Add new classes
+        sequenceItems[currentStep].classList.add('active');
+        sequenceItems[(currentStep + 1) % totalSteps].classList.add('next');
+        sequenceItems[(currentStep - 1 + totalSteps) % totalSteps].classList.add('prev');
+
+        // Allow next animation after transition
+        setTimeout(() => {
+            isAnimating = false;
+        }, 800);
+    }
+
+    // Start auto-rotation when the section is in view
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                startAutoRotation();
+            } else {
+                pauseAutoRotation();
+            }
+        });
+    }, { threshold: 0.5 });
+
+    observer.observe(textSequenceSection);
+
+    // Scroll and Key Navigation
+    let lastScrollPosition = window.pageYOffset;
+    let scrollThreshold = 50;
+    let scrollTimeout;
+
+    window.addEventListener('scroll', () => {
+        if (!textSequenceSection || isAnimating) return;
+
+        const rect = textSequenceSection.getBoundingClientRect();
+        if (rect.top < window.innerHeight && rect.bottom > 0) {
+            clearTimeout(scrollTimeout);
+            
+            scrollTimeout = setTimeout(() => {
+                const currentScrollPosition = window.pageYOffset;
+                const scrollDifference = currentScrollPosition - lastScrollPosition;
+
+                if (Math.abs(scrollDifference) > scrollThreshold) {
+                    pauseAutoRotation();
+                    updateSequence(scrollDifference > 0 ? 'next' : 'prev');
+                    restartAutoRotationAfterDelay();
+                    lastScrollPosition = currentScrollPosition;
+                }
+            }, 50);
+        }
+    });
+
+    // Keyboard Navigation
+    document.addEventListener('keydown', (e) => {
+        if (!textSequenceSection || isAnimating) return;
+        const rect = textSequenceSection.getBoundingClientRect();
+        
+        if (rect.top < window.innerHeight && rect.bottom > 0) {
+            if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+                pauseAutoRotation();
+                updateSequence('next');
+                restartAutoRotationAfterDelay();
+            } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+                pauseAutoRotation();
+                updateSequence('prev');
+                restartAutoRotationAfterDelay();
+            }
+        }
+    });
+
+    // Touch Navigation for sequence
+    let sequenceTouchStartX = 0;
+    let sequenceTouchStartY = 0;
+
+    textSequenceSection.addEventListener('touchstart', (e) => {
+        sequenceTouchStartX = e.touches[0].clientX;
+        sequenceTouchStartY = e.touches[0].clientY;
+        pauseAutoRotation();
+    }, { passive: true });
+
+    textSequenceSection.addEventListener('touchend', (e) => {
+        if (isAnimating) return;
+
+        const touchEndX = e.changedTouches[0].clientX;
+        const touchEndY = e.changedTouches[0].clientY;
+        const deltaX = touchEndX - sequenceTouchStartX;
+        const deltaY = touchEndY - sequenceTouchStartY;
+
+        // Ensure horizontal swipe is more significant than vertical
+        if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 50) {
+            updateSequence(deltaX < 0 ? 'next' : 'prev');
+            restartAutoRotationAfterDelay();
+        }
+    }, { passive: true });
 
     // Typewriter effect for expertise quote
     const quote = document.querySelector('.expertise-quote blockquote');
@@ -265,52 +401,6 @@ document.addEventListener('DOMContentLoaded', () => {
             } finally {
                 submitButton.innerHTML = originalButtonText;
                 submitButton.disabled = false;
-            }
-        });
-    }
-});
-
-// Newsletter Form Handler
-document.addEventListener('DOMContentLoaded', () => {
-    const newsletterForm = document.querySelector('.newsletter-form');
-    if (newsletterForm) {
-        newsletterForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-
-            const emailInput = newsletterForm.querySelector('input[type="email"]');
-            const submitButton = newsletterForm.querySelector('button[type="submit"]');
-            const originalButtonText = submitButton.innerHTML;
-
-            // Disable form while submitting
-            emailInput.disabled = true;
-            submitButton.disabled = true;
-            submitButton.innerHTML = '<span>Wird angemeldet...</span>';
-
-            try {
-                const response = await fetch('http://localhost:3001/api/newsletter', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ email: emailInput.value })
-                });
-
-                const result = await response.json();
-
-                if (result.success) {
-                    alert(result.message);
-                    newsletterForm.reset();
-                } else {
-                    alert(result.message || 'Ein Fehler ist aufgetreten. Bitte versuchen Sie es später erneut.');
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('Ein Fehler ist aufgetreten. Bitte versuchen Sie es später erneut.');
-            } finally {
-                // Re-enable form
-                emailInput.disabled = false;
-                submitButton.disabled = false;
-                submitButton.innerHTML = originalButtonText;
             }
         });
     }
