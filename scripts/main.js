@@ -405,4 +405,53 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+});
+
+// Newsletter Form Handler
+document.addEventListener('DOMContentLoaded', () => {
+    const newsletterForm = document.getElementById('newsletter-form');
+    
+    if (newsletterForm) {
+        newsletterForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const emailInput = document.getElementById('newsletter-email');
+            const submitButton = newsletterForm.querySelector('button[type="submit"]');
+            const originalButtonText = submitButton.innerHTML;
+            
+            // Disable form while submitting
+            emailInput.disabled = true;
+            submitButton.disabled = true;
+            submitButton.innerHTML = '<span>Wird angemeldet...</span>';
+            
+            try {
+                const response = await fetch('http://localhost:3001/api/subscribe', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: emailInput.value
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    alert('Vielen Dank für Ihre Anmeldung! Sie erhalten in Kürze eine Bestätigungs-E-Mail.');
+                    newsletterForm.reset();
+                } else {
+                    throw new Error(result.error || 'Anmeldung fehlgeschlagen');
+                }
+            } catch (error) {
+                console.error('Newsletter subscription error:', error);
+                alert('Es gab einen Fehler bei der Anmeldung. Bitte versuchen Sie es später erneut.');
+            } finally {
+                // Re-enable form
+                emailInput.disabled = false;
+                submitButton.disabled = false;
+                submitButton.innerHTML = originalButtonText;
+            }
+        });
+    }
 }); 
