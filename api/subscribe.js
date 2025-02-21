@@ -1,7 +1,19 @@
-const fetch = require('node-fetch');
+const MailerLite = require('@mailerlite/mailerlite-nodejs').default;
 
 module.exports = async (req, res) => {
   console.log('API: Received newsletter subscription request');
+
+  // Enable CORS
+  res.setHeader('Access-Control-Allow-Credentials', true);
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
+  res.setHeader('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version');
+
+  // Handle OPTIONS request
+  if (req.method === 'OPTIONS') {
+    res.status(200).end();
+    return;
+  }
 
   if (req.method !== 'POST') {
     console.log('API: Invalid method:', req.method);
@@ -17,29 +29,17 @@ module.exports = async (req, res) => {
       throw new Error('API key not configured');
     }
 
-    console.log('API: Sending request to MailerLite');
-    const response = await fetch('https://connect.mailerlite.com/api/subscribers', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'Authorization': `Bearer ${process.env.MAILERLITE_API_KEY}`
-      },
-      body: JSON.stringify({
-        email: email
-      })
+    const mailerlite = new MailerLite({
+      api_key: process.env.MAILERLITE_API_KEY
     });
 
-    const data = await response.json();
-    console.log('API: MailerLite response status:', response.status);
-    console.log('API: MailerLite response data:', data);
+    console.log('API: Sending request to MailerLite');
+    const subscriber = await mailerlite.subscribers.createOrUpdate({
+      email: email
+    });
 
-    if (!response.ok) {
-      throw new Error(data.message || 'Failed to subscribe');
-    }
-
-    console.log('API: Subscription successful');
-    res.json({ success: true, data });
+    console.log('API: MailerLite response:', subscriber);
+    res.json({ success: true, data: subscriber });
   } catch (error) {
     console.error('API: Newsletter subscription error:', {
       message: error.message,
