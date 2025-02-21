@@ -409,23 +409,53 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Newsletter Form Handler
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('[Newsletter] DOM Content Loaded - Starting newsletter initialization');
     const newsletterForm = document.getElementById('newsletter-form');
     
     if (newsletterForm) {
+        console.log('[Newsletter] Found newsletter form element');
+        
+        // Log initial form state
+        const emailInput = document.getElementById('newsletter-email');
+        const submitButton = newsletterForm.querySelector('button[type="submit"]');
+        console.log('[Newsletter] Initial form state:', {
+            formId: newsletterForm.id,
+            emailInputId: emailInput.id,
+            submitButtonText: submitButton.innerHTML,
+            formAction: newsletterForm.action || 'No action set'
+        });
+
         newsletterForm.addEventListener('submit', async (e) => {
+            console.log('[Newsletter] Form submission started');
             e.preventDefault();
+            console.log('[Newsletter] Default form submission prevented');
             
             const emailInput = document.getElementById('newsletter-email');
             const submitButton = newsletterForm.querySelector('button[type="submit"]');
             const originalButtonText = submitButton.innerHTML;
             
+            // Log submission details
+            console.log('[Newsletter] Submission details:', {
+                email: emailInput.value,
+                buttonState: submitButton.disabled ? 'disabled' : 'enabled',
+                buttonText: submitButton.innerHTML,
+                timestamp: new Date().toISOString()
+            });
+
             // Disable form while submitting
+            console.log('[Newsletter] Disabling form elements');
             emailInput.disabled = true;
             submitButton.disabled = true;
             submitButton.innerHTML = '<span>Wird angemeldet...</span>';
             
             try {
-                console.log('Newsletter: Attempting to subscribe with email:', emailInput.value);
+                console.log('[Newsletter] Preparing fetch request to /api/subscribe');
+                console.log('[Newsletter] Request payload:', {
+                    email: emailInput.value,
+                    url: 'https://www.rouvenzietz.de/api/subscribe'
+                });
+
+                const startTime = performance.now();
                 const response = await fetch('https://www.rouvenzietz.de/api/subscribe', {
                     method: 'POST',
                     headers: {
@@ -435,31 +465,77 @@ document.addEventListener('DOMContentLoaded', () => {
                         email: emailInput.value
                     })
                 });
+                const endTime = performance.now();
 
-                console.log('Newsletter: Server response status:', response.status);
+                console.log('[Newsletter] Server response received:', {
+                    status: response.status,
+                    statusText: response.statusText,
+                    headers: Object.fromEntries(response.headers.entries()),
+                    responseTime: `${Math.round(endTime - startTime)}ms`
+                });
+
                 const result = await response.json();
-                console.log('Newsletter: Server response data:', result);
+                console.log('[Newsletter] Response data:', result);
 
                 if (result.success) {
-                    console.log('Newsletter: Subscription successful');
+                    console.log('[Newsletter] Subscription successful');
                     alert('Vielen Dank für Ihre Anmeldung! Sie erhalten in Kürze eine Bestätigungs-E-Mail.');
                     newsletterForm.reset();
+                    console.log('[Newsletter] Form reset completed');
                 } else {
+                    console.error('[Newsletter] Server returned error:', result.error);
                     throw new Error(result.error || 'Anmeldung fehlgeschlagen');
                 }
             } catch (error) {
-                console.error('Newsletter subscription detailed error:', {
+                console.error('[Newsletter] Subscription error:', {
+                    name: error.name,
                     message: error.message,
                     stack: error.stack,
-                    name: error.name
+                    type: error.constructor.name
                 });
+
+                // Try to parse any response that might be available
+                if (error.response) {
+                    try {
+                        const errorBody = await error.response.text();
+                        console.error('[Newsletter] Error response body:', errorBody);
+                    } catch (e) {
+                        console.error('[Newsletter] Could not read error response body');
+                    }
+                }
+
                 alert('Es gab einen Fehler bei der Anmeldung. Bitte versuchen Sie es später erneut.');
             } finally {
+                console.log('[Newsletter] Cleanup phase started');
                 // Re-enable form
                 emailInput.disabled = false;
                 submitButton.disabled = false;
                 submitButton.innerHTML = originalButtonText;
+                console.log('[Newsletter] Form elements re-enabled');
             }
         });
+
+        // Add input validation logging
+        emailInput.addEventListener('input', (e) => {
+            console.log('[Newsletter] Email input changed:', {
+                value: e.target.value,
+                valid: e.target.checkValidity(),
+                validationMessage: e.target.validationMessage
+            });
+        });
+
+        // Log form focus/blur events
+        emailInput.addEventListener('focus', () => {
+            console.log('[Newsletter] Email input focused');
+        });
+
+        emailInput.addEventListener('blur', () => {
+            console.log('[Newsletter] Email input lost focus, final value:', {
+                value: emailInput.value,
+                valid: emailInput.checkValidity()
+            });
+        });
+    } else {
+        console.error('[Newsletter] Could not find newsletter form element with id "newsletter-form"');
     }
-}); 
+});
