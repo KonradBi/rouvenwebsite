@@ -64,7 +64,7 @@ app.post('/api/subscribe', async (req, res) => {
             },
             body: JSON.stringify({
                 email: email,
-                groups: [process.env.MAILERLITE_GROUP_ID] // Optional: If you want to add to a specific group
+                ...(process.env.MAILERLITE_GROUP_ID ? { groups: [process.env.MAILERLITE_GROUP_ID] } : {})
             })
         });
 
