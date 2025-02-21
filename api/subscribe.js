@@ -1,6 +1,6 @@
-const MailerLite = require('@mailerlite/mailerlite-nodejs');
+import { MailerLite } from '@mailerlite/mailerlite-nodejs';
 
-module.exports = async (req, res) => {
+export default async (req, res) => {
   // Enable CORS
   res.setHeader('Access-Control-Allow-Credentials', true);
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -28,9 +28,11 @@ module.exports = async (req, res) => {
       return res.status(500).json({ error: 'API key not configured' });
     }
 
-    const mailerlite = MailerLite(process.env.MAILERLITE_API_KEY);
+    const client = new MailerLite({
+      api_key: process.env.MAILERLITE_API_KEY
+    });
 
-    await mailerlite.subscribers.create({
+    await client.subscribers.create({
       email: email,
       status: 'active'
     });
