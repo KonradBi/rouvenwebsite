@@ -1,4 +1,4 @@
-const MailerLite = require('@mailerlite/mailerlite-nodejs').default;
+const MailerLite = require('@mailerlite/mailerlite-nodejs');
 
 module.exports = async (req, res) => {
   const diagnostics = {
