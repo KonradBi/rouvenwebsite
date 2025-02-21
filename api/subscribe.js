@@ -1,6 +1,6 @@
-import { MailerLite } from '@mailerlite/mailerlite-nodejs';
+const { MailerLite } = require('@mailerlite/mailerlite-nodejs');
 
-export default async (req, res) => {
+module.exports = async (req, res) => {
   console.log('[API] Newsletter subscription request received:', {
     method: req.method,
     headers: req.headers,
