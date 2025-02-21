@@ -32,7 +32,7 @@ module.exports = async (req, res) => {
       api_key: process.env.MAILERLITE_API_KEY
     });
 
-    await mailerlite.createSubscriber({
+    await mailerlite.post('/api/subscribers', {
       email: email,
       status: 'active'
     });

@@ -34,7 +34,7 @@ module.exports = async (req, res) => {
     // 3. Test Create Subscriber
     try {
       const testEmail = `test.${Date.now()}@example.com`;
-      const createResponse = await mailerlite.createSubscriber({
+      const createResponse = await mailerlite.post('/api/subscribers', {
         email: testEmail,
         status: 'active'
       });
@@ -46,7 +46,7 @@ module.exports = async (req, res) => {
 
       // 4. Clean up - Delete test subscriber
       try {
-        await mailerlite.deleteSubscriber(testEmail);
+        await mailerlite.delete(`/api/subscribers/${testEmail}`);
       } catch (e) {
         diagnostics.errors.push(`Cleanup failed: ${e.message}`);
       }
