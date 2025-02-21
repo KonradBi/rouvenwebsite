@@ -1,8 +1,6 @@
 const MailerLite = require('@mailerlite/mailerlite-nodejs').default;
 
 module.exports = async (req, res) => {
-  console.log('API: Received newsletter subscription request');
-
   // Enable CORS
   res.setHeader('Access-Control-Allow-Credentials', true);
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -16,51 +14,38 @@ module.exports = async (req, res) => {
   }
 
   if (req.method !== 'POST') {
-    console.log('API: Invalid method:', req.method);
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
   try {
     const { email } = req.body;
-    console.log('API: Processing subscription for email:', email);
     
+    if (!email) {
+      return res.status(400).json({ error: 'Email is required' });
+    }
+
     if (!process.env.MAILERLITE_API_KEY) {
-      console.error('API: MAILERLITE_API_KEY is not set');
-      throw new Error('API key not configured');
+      return res.status(500).json({ error: 'API key not configured' });
     }
 
     const mailerlite = new MailerLite({
       api_key: process.env.MAILERLITE_API_KEY
     });
 
-    console.log('API: Sending request to MailerLite');
-    const response = await mailerlite.subscribers.create({
+    await mailerlite.createSubscriber({
       email: email,
       status: 'active'
     });
 
-    console.log('API: MailerLite response:', response);
-
-    // Extract only the data we need
-    const subscriber = response.data ? {
-      id: response.data.id,
-      email: response.data.email,
-      status: response.data.status
-    } : null;
-
     res.json({ 
       success: true, 
-      data: subscriber
+      message: 'Successfully subscribed to newsletter'
     });
   } catch (error) {
-    console.error('API: Newsletter subscription error:', {
-      message: error.message,
-      stack: error.stack,
-      name: error.name
-    });
+    console.error('Newsletter subscription error:', error);
     res.status(500).json({ 
       success: false, 
-      error: error.message || 'Failed to subscribe to newsletter' 
+      error: 'Failed to subscribe to newsletter. Please try again later.'
     });
   }
 };
