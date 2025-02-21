@@ -34,8 +34,9 @@ module.exports = async (req, res) => {
     });
 
     console.log('API: Sending request to MailerLite');
-    const subscriber = await mailerlite.subscribers.createOrUpdate({
-      email: email
+    const subscriber = await mailerlite.subscribers.create({
+      email: email,
+      status: 'active'
     });
 
     console.log('API: MailerLite response:', subscriber);

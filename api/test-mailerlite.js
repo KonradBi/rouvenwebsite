@@ -13,18 +13,17 @@ module.exports = async (req, res) => {
       api_key: process.env.MAILERLITE_API_KEY
     });
 
-    // Test different API endpoints
-    console.log('API: Fetching forms...');
-    const forms = await mailerlite.forms.list();
+    // Test API connection with subscribers endpoint first
     console.log('API: Fetching subscribers...');
-    const subscribers = await mailerlite.subscribers.list();
+    const subscribers = await mailerlite.subscribers.get();
+    
+    // Test groups endpoint
     console.log('API: Fetching groups...');
-    const groups = await mailerlite.groups.list();
+    const groups = await mailerlite.groups.get();
 
     res.json({
       success: true,
       data: {
-        forms,
         subscribers,
         groups
       }
