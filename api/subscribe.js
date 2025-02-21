@@ -32,10 +32,21 @@ export default async (req, res) => {
       api_key: process.env.MAILERLITE_API_KEY
     });
 
+    // Create subscriber
     await client.subscribers.create({
       email: email,
       status: 'active'
     });
+
+    // If group ID is configured, add subscriber to group
+    if (process.env.MAILERLITE_GROUP_ID) {
+      try {
+        await client.groups.assignSubscriber(process.env.MAILERLITE_GROUP_ID, email);
+      } catch (groupError) {
+        console.error('Failed to add subscriber to group:', groupError);
+        // Don't fail the whole request if just the group assignment fails
+      }
+    }
 
     res.json({ 
       success: true, 
