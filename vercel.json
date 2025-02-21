@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "builds": [
+    { "src": "rouven-webseite/**", "use": "@vercel/static" },
+    { "src": "api/**/*.js", "use": "@vercel/node" }
+  ],
+  "routes": [
+    { "src": "/api/(.*)", "dest": "/api/$1" },
+    { "src": "/(.*)", "dest": "/rouven-webseite/$1" }
+  ]
+}
