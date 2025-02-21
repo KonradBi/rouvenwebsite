@@ -2,6 +2,6 @@
   "name": "rouven-website-api",
   "version": "1.0.0",
   "dependencies": {
-    "@mailerlite/mailerlite-nodejs": "^1.2.1"
+    "@mailerlite/mailerlite-nodejs": "1.0.1"
   }
 }

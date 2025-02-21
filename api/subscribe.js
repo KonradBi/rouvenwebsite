@@ -28,12 +28,9 @@ module.exports = async (req, res) => {
       return res.status(500).json({ error: 'API key not configured' });
     }
 
-    const mailerlite = new MailerLite({
-      api_key: process.env.MAILERLITE_API_KEY,
-      base_url: 'https://connect.mailerlite.com/api'
-    });
+    const mailerlite = MailerLite(process.env.MAILERLITE_API_KEY);
 
-    await mailerlite.post('/subscribers', {
+    await mailerlite.subscribers.create({
       email: email,
       status: 'active'
     });
