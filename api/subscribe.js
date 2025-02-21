@@ -34,13 +34,24 @@ module.exports = async (req, res) => {
     });
 
     console.log('API: Sending request to MailerLite');
-    const subscriber = await mailerlite.subscribers.create({
+    const response = await mailerlite.subscribers.create({
       email: email,
       status: 'active'
     });
 
-    console.log('API: MailerLite response:', subscriber);
-    res.json({ success: true, data: subscriber });
+    console.log('API: MailerLite response:', response);
+
+    // Extract only the data we need
+    const subscriber = response.data ? {
+      id: response.data.id,
+      email: response.data.email,
+      status: response.data.status
+    } : null;
+
+    res.json({ 
+      success: true, 
+      data: subscriber
+    });
   } catch (error) {
     console.error('API: Newsletter subscription error:', {
       message: error.message,

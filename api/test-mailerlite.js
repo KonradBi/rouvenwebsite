@@ -15,17 +15,33 @@ module.exports = async (req, res) => {
 
     // Test API connection with subscribers endpoint first
     console.log('API: Fetching subscribers...');
-    const subscribers = await mailerlite.subscribers.get();
+    const subscribersResponse = await mailerlite.subscribers.get();
+    console.log('API: Subscribers response:', subscribersResponse);
     
     // Test groups endpoint
     console.log('API: Fetching groups...');
-    const groups = await mailerlite.groups.get();
+    const groupsResponse = await mailerlite.groups.get();
+    console.log('API: Groups response:', groupsResponse);
+
+    // Extract only the data we need
+    const subscribers = subscribersResponse.data ? subscribersResponse.data.map(sub => ({
+      id: sub.id,
+      email: sub.email,
+      status: sub.status
+    })) : [];
+
+    const groups = groupsResponse.data ? groupsResponse.data.map(group => ({
+      id: group.id,
+      name: group.name
+    })) : [];
 
     res.json({
       success: true,
       data: {
         subscribers,
-        groups
+        groups,
+        subscriberCount: subscribers.length,
+        groupCount: groups.length
       }
     });
   } catch (error) {
