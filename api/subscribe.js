@@ -29,10 +29,11 @@ module.exports = async (req, res) => {
     }
 
     const mailerlite = new MailerLite({
-      api_key: process.env.MAILERLITE_API_KEY
+      api_key: process.env.MAILERLITE_API_KEY,
+      base_url: 'https://connect.mailerlite.com/api'
     });
 
-    await mailerlite.post('/api/subscribers', {
+    await mailerlite.post('/subscribers', {
       email: email,
       status: 'active'
     });

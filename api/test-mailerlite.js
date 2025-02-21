@@ -29,24 +29,28 @@ module.exports = async (req, res) => {
     }
 
     // 2. Initialize API Client
-    const mailerlite = new MailerLite({ api_key: apiKey });
+    const mailerlite = new MailerLite({
+      api_key: apiKey,
+      base_url: 'https://connect.mailerlite.com/api'
+    });
     
     // 3. Test Create Subscriber
     try {
       const testEmail = `test.${Date.now()}@example.com`;
-      const createResponse = await mailerlite.post('/api/subscribers', {
+      const createResponse = await mailerlite.post('/subscribers', {
         email: testEmail,
         status: 'active'
       });
       
       diagnostics.testResults.createSubscriber = {
         success: true,
-        email: testEmail
+        email: testEmail,
+        response: createResponse
       };
 
       // 4. Clean up - Delete test subscriber
       try {
-        await mailerlite.delete(`/api/subscribers/${testEmail}`);
+        await mailerlite.delete(`/subscribers/${testEmail}`);
       } catch (e) {
         diagnostics.errors.push(`Cleanup failed: ${e.message}`);
       }
