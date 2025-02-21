@@ -40,24 +40,45 @@ module.exports = async (req, res) => {
       return res.status(500).json({ error: 'API key not configured' });
     }
 
-    console.log('[API] Initializing MailerLite client');
-    const client = new MailerLite({
-      api_key: process.env.MAILERLITE_API_KEY
+    console.log('[API] Sending request to MailerLite API');
+    const response = await fetch('https://connect.mailerlite.com/api/subscribers', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${process.env.MAILERLITE_API_KEY}`
+      },
+      body: JSON.stringify({
+        email: email,
+        status: 'active'
+      })
     });
 
-    console.log('[API] Creating subscriber:', { email });
-    // Create subscriber
-    await client.subscribers.create({
-      email: email,
-      status: 'active'
-    });
+    const result = await response.json();
+    console.log('[API] MailerLite API response:', result);
+
+    if (!response.ok) {
+      throw new Error(result.message || 'Failed to subscribe');
+    }
 
     // If group ID is configured, add subscriber to group
     if (process.env.MAILERLITE_GROUP_ID) {
       console.log('[API] Adding subscriber to group:', process.env.MAILERLITE_GROUP_ID);
       try {
-        await client.groups.assignSubscriber(process.env.MAILERLITE_GROUP_ID, email);
-        console.log('[API] Successfully added to group');
+        const groupResponse = await fetch(`https://connect.mailerlite.com/api/groups/${process.env.MAILERLITE_GROUP_ID}/subscribers/${email}`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${process.env.MAILERLITE_API_KEY}`
+          }
+        });
+
+        const groupResult = await groupResponse.json();
+        console.log('[API] Group assignment response:', groupResult);
+
+        if (!groupResponse.ok) {
+          console.error('[API] Failed to add to group:', groupResult);
+        } else {
+          console.log('[API] Successfully added to group');
+        }
       } catch (groupError) {
         console.error('[API] Failed to add subscriber to group:', {
           error: groupError.message,
@@ -76,13 +97,7 @@ module.exports = async (req, res) => {
     console.error('[API] Subscription error:', {
       name: error.name,
       message: error.message,
-      stack: error.stack,
-      code: error.code,
-      response: error.response ? {
-        status: error.response.status,
-        statusText: error.response.statusText,
-        data: error.response.data
-      } : null
+      stack: error.stack
     });
 
     // Send a proper JSON response
