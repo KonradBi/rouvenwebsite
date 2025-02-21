@@ -425,6 +425,7 @@ document.addEventListener('DOMContentLoaded', () => {
             submitButton.innerHTML = '<span>Wird angemeldet...</span>';
             
             try {
+                console.log('Newsletter: Attempting to subscribe with email:', emailInput.value);
                 const response = await fetch('https://www.rouvenzietz.de/api/subscribe', {
                     method: 'POST',
                     headers: {
@@ -435,16 +436,23 @@ document.addEventListener('DOMContentLoaded', () => {
                     })
                 });
 
+                console.log('Newsletter: Server response status:', response.status);
                 const result = await response.json();
+                console.log('Newsletter: Server response data:', result);
 
                 if (result.success) {
+                    console.log('Newsletter: Subscription successful');
                     alert('Vielen Dank für Ihre Anmeldung! Sie erhalten in Kürze eine Bestätigungs-E-Mail.');
                     newsletterForm.reset();
                 } else {
                     throw new Error(result.error || 'Anmeldung fehlgeschlagen');
                 }
             } catch (error) {
-                console.error('Newsletter subscription error:', error);
+                console.error('Newsletter subscription detailed error:', {
+                    message: error.message,
+                    stack: error.stack,
+                    name: error.name
+                });
                 alert('Es gab einen Fehler bei der Anmeldung. Bitte versuchen Sie es später erneut.');
             } finally {
                 // Re-enable form
