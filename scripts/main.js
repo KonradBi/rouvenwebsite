@@ -380,7 +380,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     message: contactForm.querySelector('#message').value
                 };
 
-                const response = await fetch('https://www.rouvenzietz.de/api/contact', {
+                const response = await fetch('/api/contact', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -426,7 +426,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             try {
                 console.log('Newsletter: Attempting to subscribe with email:', emailInput.value);
-                const response = await fetch('https://www.rouvenzietz.de/api/subscribe', {
+                const response = await fetch('/api/subscribe', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
