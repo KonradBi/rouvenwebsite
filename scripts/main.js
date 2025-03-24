@@ -182,13 +182,10 @@ document.addEventListener('DOMContentLoaded', () => {
             // Initialize height for the sequence container based on content
             function updateContainerHeight() {
                 const activeItem = document.querySelector('.sequence-item.active');
-                if (activeItem) {
+                if (activeItem && sequenceContainer) {
                     // Add small buffer for spacing
                     const containerHeight = activeItem.offsetHeight + 80;
-                    const container = document.querySelector('.sequence-container');
-                    if (container) {
-                        container.style.minHeight = `${containerHeight}px`;
-                    }
+                    sequenceContainer.style.minHeight = `${containerHeight}px`;
                 }
             }
             
@@ -204,7 +201,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!autoRotationInterval) {
                     autoRotationInterval = setInterval(() => {
                         if (!userInteracted && !isAnimating) {
-                            updateSequence((currentStep + 1) % totalSteps);
+                            const nextIndex = (currentStep + 1) % totalSteps;
+                            if (nextIndex >= 0 && nextIndex < totalSteps) {
+                                updateSequence(nextIndex);
+                            }
                         }
                     }, AUTO_ROTATION_DELAY);
                 }
@@ -236,23 +236,30 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 isAnimating = true;
 
-                // Update navigation dots
-                document.querySelectorAll('.sequence-dot').forEach((dot, index) => {
-                    dot.classList.toggle('active', index === newIndex);
-                });
+                // Safely update navigation dots
+                const dots = document.querySelectorAll('.sequence-dot');
+                if (dots && dots.length > 0) {
+                    dots.forEach((dot, index) => {
+                        if (dot) {
+                            dot.classList.toggle('active', index === newIndex);
+                        }
+                    });
+                }
 
                 // Same animation for mobile and desktop - simpler fade & slide
-                // Remove active class from current item
-                if (sequenceItems[currentStep]) {
+                // Remove active class from current item safely
+                if (currentStep >= 0 && currentStep < sequenceItems.length && sequenceItems[currentStep]) {
                     sequenceItems[currentStep].classList.remove('active');
                 }
                 
-                // Add active class to new item
-                if (sequenceItems[newIndex]) {
+                // Add active class to new item safely
+                if (newIndex >= 0 && newIndex < sequenceItems.length && sequenceItems[newIndex]) {
                     sequenceItems[newIndex].classList.add('active');
                     currentStep = newIndex;
                 } else {
                     console.error('Sequence item missing:', newIndex);
+                    isAnimating = false;
+                    return;
                 }
                 
                 // Allow next animation after transition
@@ -290,8 +297,11 @@ document.addEventListener('DOMContentLoaded', () => {
                         nextIndex = (currentStep + 1) % totalSteps;
                     }
                     
-                    updateSequence(nextIndex);
-                    restartAutoRotationAfterDelay();
+                    // Check if nextIndex is valid before updating
+                    if (nextIndex >= 0 && nextIndex < totalSteps) {
+                        updateSequence(nextIndex);
+                        restartAutoRotationAfterDelay();
+                    }
                 }
             }, { passive: true });
 
@@ -332,7 +342,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
                         if (Math.abs(scrollDifference) > scrollThreshold) {
                             pauseAutoRotation();
-                            updateSequence((currentStep + scrollDifference) % totalSteps);
+                            const nextIndex = (currentStep + Math.sign(scrollDifference)) % totalSteps;
+                            if (nextIndex >= 0 && nextIndex < totalSteps) {
+                                updateSequence(nextIndex);
+                            }
                             lastScrollPosition = currentScrollPosition;
                         }
                     }, 50);
@@ -345,13 +358,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 const rect = textSequenceSection.getBoundingClientRect();
                 
                 if (rect.top < window.innerHeight && rect.bottom > 0) {
+                    let nextIndex = currentStep;
+                    
                     if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
-                        pauseAutoRotation();
-                        updateSequence((currentStep + 1) % totalSteps);
-                        restartAutoRotationAfterDelay();
+                        nextIndex = (currentStep + 1) % totalSteps;
                     } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+                        nextIndex = (currentStep - 1 + totalSteps) % totalSteps;
+                    } else {
+                        return; // Not a navigation key
+                    }
+                    
+                    if (nextIndex >= 0 && nextIndex < totalSteps) {
                         pauseAutoRotation();
-                        updateSequence((currentStep - 1 + totalSteps) % totalSteps);
+                        updateSequence(nextIndex);
                         restartAutoRotationAfterDelay();
                     }
                 }
