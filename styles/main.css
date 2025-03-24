@@ -264,6 +264,10 @@ section:not(.hero-section):not(#about) h2 {
 .hero-section {
     position: relative;
     background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.3)), url('../images/hero-interview.jpg');
+    /* Modern browsers that support WebP */
+    @supports (background-image: url('../images/hero-interview.webp')) {
+        background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.3)), url('../images/hero-interview.webp');
+    }
     background-size: cover;
     background-position: center;
     color: white;
