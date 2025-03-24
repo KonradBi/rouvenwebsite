@@ -69,4 +69,6 @@ http-server -p 3000 --cors -c-1 -C -a localhost
 3. **Änderungen werden nicht angezeigt**
    - Server neu starten mit Cache-Deaktivierung
    - Browser-Cache leeren
-   - Entwicklertools öffnen und "Disable cache" aktivieren 
+   - Entwicklertools öffnen und "Disable cache" aktivieren
+
+_Last updated: March 23, 2023_ 
