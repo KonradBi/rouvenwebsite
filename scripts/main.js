@@ -132,231 +132,284 @@ document.addEventListener('DOMContentLoaded', () => {
     }, { passive: true });
 
     // Text-Sequence Animation
-    const sequenceItems = document.querySelectorAll('.sequence-item');
     const textSequenceSection = document.querySelector('#text-sequence');
-    let currentStep = 0;
-    const totalSteps = sequenceItems.length;
-    let isAnimating = false;
-    let autoRotationInterval;
-    let userInteracted = false;
-    const AUTO_ROTATION_DELAY = 8000; // Increased from 5000 to 8000 milliseconds
-
-    // Erstelle Navigationspunkte
-    const navigation = document.createElement('div');
-    navigation.className = 'sequence-navigation';
-    sequenceItems.forEach((_, index) => {
-        const dot = document.createElement('div');
-        dot.className = `sequence-dot${index === 0 ? ' active' : ''}`;
-        dot.addEventListener('click', () => {
-            if (!isAnimating && index !== currentStep) {
-                pauseAutoRotation();
-                updateSequence(index > currentStep ? 'next' : 'prev', index);
-                restartAutoRotationAfterDelay();
-            }
-        });
-        navigation.appendChild(dot);
-    });
-    textSequenceSection.querySelector('.sequence-container').appendChild(navigation);
-
-    // Setze erste Sequenz
-    sequenceItems[0].classList.add('active');
-    if (sequenceItems[1]) sequenceItems[1].classList.add('next');
-    if (sequenceItems[totalSteps - 1]) sequenceItems[totalSteps - 1].classList.add('prev');
-
-    function startAutoRotation() {
-        if (!autoRotationInterval) {
-            autoRotationInterval = setInterval(() => {
-                if (!userInteracted && !isAnimating) {
-                    updateSequence('next');
-                }
-            }, AUTO_ROTATION_DELAY);
-        }
-    }
-
-    function pauseAutoRotation() {
-        userInteracted = true;
-        if (autoRotationInterval) {
-            clearInterval(autoRotationInterval);
-            autoRotationInterval = null;
-        }
-    }
-
-    function restartAutoRotationAfterDelay() {
-        setTimeout(() => {
-            userInteracted = false;
-            startAutoRotation();
-        }, AUTO_ROTATION_DELAY);
-    }
-
-    function updateSequence(direction, targetIndex = null) {
-        if (isAnimating) return;
-        isAnimating = true;
-
-        const prevStep = currentStep;
-        if (targetIndex !== null) {
-            currentStep = targetIndex;
-        } else {
-            currentStep = direction === 'next' 
-                ? (currentStep + 1) % totalSteps 
-                : (currentStep - 1 + totalSteps) % totalSteps;
-        }
-
-        // Update navigation dots
-        document.querySelectorAll('.sequence-dot').forEach((dot, index) => {
-            dot.classList.toggle('active', index === currentStep);
-        });
-
-        // Remove all transition classes
-        sequenceItems.forEach(item => {
-            item.classList.remove('active', 'prev', 'next');
-        });
-
-        // Add new classes
-        sequenceItems[currentStep].classList.add('active');
-        sequenceItems[(currentStep + 1) % totalSteps].classList.add('next');
-        sequenceItems[(currentStep - 1 + totalSteps) % totalSteps].classList.add('prev');
-
-        // Allow next animation after transition
-        setTimeout(() => {
-            isAnimating = false;
-        }, 1000); // Increased from 800 to 1000 milliseconds
-    }
-
-    // Start auto-rotation when the section is in view
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                userInteracted = false; // Reset user interaction when section comes into view
-                startAutoRotation();
-            } else {
-                pauseAutoRotation();
-            }
-        });
-    }, { threshold: 0.5 });
-
-    observer.observe(textSequenceSection);
-
-    // Scroll and Key Navigation
-    let lastScrollPosition = window.pageYOffset;
-    let scrollThreshold = 50;
-    let scrollTimeout;
-
-    window.addEventListener('scroll', () => {
-        if (!textSequenceSection || isAnimating) return;
-
-        const rect = textSequenceSection.getBoundingClientRect();
-        if (rect.top < window.innerHeight && rect.bottom > 0) {
-            clearTimeout(scrollTimeout);
-            
-            scrollTimeout = setTimeout(() => {
-                const currentScrollPosition = window.pageYOffset;
-                const scrollDifference = currentScrollPosition - lastScrollPosition;
-
-                if (Math.abs(scrollDifference) > scrollThreshold) {
-                    pauseAutoRotation();
-                    updateSequence(scrollDifference > 0 ? 'next' : 'prev');
-                    restartAutoRotationAfterDelay();
-                    lastScrollPosition = currentScrollPosition;
-                }
-            }, 50);
-        }
-    });
-
-    // Keyboard Navigation
-    document.addEventListener('keydown', (e) => {
-        if (!textSequenceSection || isAnimating) return;
-        const rect = textSequenceSection.getBoundingClientRect();
-        
-        if (rect.top < window.innerHeight && rect.bottom > 0) {
-            if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
-                pauseAutoRotation();
-                updateSequence('next');
-                restartAutoRotationAfterDelay();
-            } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
-                pauseAutoRotation();
-                updateSequence('prev');
-                restartAutoRotationAfterDelay();
-            }
-        }
-    });
-
-    // Touch Navigation for sequence
-    let sequenceTouchStartX = 0;
-    let sequenceTouchStartY = 0;
-
-    textSequenceSection.addEventListener('touchstart', (e) => {
-        sequenceTouchStartX = e.touches[0].clientX;
-        sequenceTouchStartY = e.touches[0].clientY;
-        pauseAutoRotation();
-    }, { passive: true });
-
-    textSequenceSection.addEventListener('touchend', (e) => {
-        if (isAnimating) return;
-
-        const touchEndX = e.changedTouches[0].clientX;
-        const touchEndY = e.changedTouches[0].clientY;
-        const deltaX = touchEndX - sequenceTouchStartX;
-        const deltaY = touchEndY - sequenceTouchStartY;
-
-        // Ensure horizontal swipe is more significant than vertical
-        if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 50) {
-            updateSequence(deltaX < 0 ? 'next' : 'prev');
-            restartAutoRotationAfterDelay();
-        }
-    }, { passive: true });
-
-    // Typewriter effect for expertise quote
-    const quote = document.querySelector('.expertise-quote blockquote');
     
-    if (quote) {
-        const text = "Die Neugierde treibt mich an. Ich suche Geschichten, die es wert sind, anderen darüber zu berichten. Dabei geht es immer um den Mehrwert. Es soll das Leben meiner Leserinnen und Leser bereichern.";
-        let charIndex = 0;
-        let isDeleting = false;
-        let cursorVisible = true;
+    // Add safety check - only run sequence code if the section exists
+    if (textSequenceSection) {
+        const sequenceItems = document.querySelectorAll('.sequence-item');
+        
+        // Check if we have any sequence items
+        if (sequenceItems && sequenceItems.length > 0) {
+            let currentStep = 0;
+            const totalSteps = sequenceItems.length;
+            let isAnimating = false;
+            let autoRotationInterval;
+            let userInteracted = false;
+            const AUTO_ROTATION_DELAY = 12000; // 12 seconds between automatic transitions
+            
+            // Check if we're on mobile
+            const isMobile = window.innerWidth <= 768;
 
-        // Cursor blink animation
-        setInterval(() => {
-            cursorVisible = !cursorVisible;
-            if (charIndex >= text.length) {
-                quote.innerHTML = `${text}${cursorVisible ? '<span class="cursor">|</span>' : ''}`;
-            }
-        }, 500);
-
-        function typeWriter() {
-            if (charIndex < text.length) {
-                quote.innerHTML = `${text.substring(0, charIndex + 1)}${cursorVisible ? '<span class="cursor">|</span>' : ''}`;
-                charIndex++;
-                
-                // Schnellere Geschwindigkeit für das Tippen
-                const delay = Math.random() * 30 + 20; // 20-50ms statt 30-80ms
-                setTimeout(typeWriter, delay);
+            // Erstelle Navigationspunkte
+            const navigation = document.createElement('div');
+            navigation.className = 'sequence-navigation';
+            sequenceItems.forEach((_, index) => {
+                const dot = document.createElement('div');
+                dot.className = `sequence-dot${index === 0 ? ' active' : ''}`;
+                dot.addEventListener('click', () => {
+                    if (!isAnimating && index !== currentStep) {
+                        pauseAutoRotation();
+                        updateSequence(index);
+                        restartAutoRotationAfterDelay();
+                    }
+                });
+                navigation.appendChild(dot);
+            });
+            
+            // Add a check to ensure container exists
+            const sequenceContainer = textSequenceSection ? textSequenceSection.querySelector('.sequence-container') : null;
+            if (sequenceContainer) {
+                sequenceContainer.appendChild(navigation);
             } else {
-                // Pause am Ende des Texts
+                console.error('Sequence container not found');
+            }
+
+            // Setze erste Sequenz
+            if (sequenceItems.length > 0 && sequenceItems[0]) {
+                sequenceItems[0].classList.add('active');
+            }
+            
+            // Initialize height for the sequence container based on content
+            function updateContainerHeight() {
+                const activeItem = document.querySelector('.sequence-item.active');
+                if (activeItem) {
+                    // Add small buffer for spacing
+                    const containerHeight = activeItem.offsetHeight + 80;
+                    const container = document.querySelector('.sequence-container');
+                    if (container) {
+                        container.style.minHeight = `${containerHeight}px`;
+                    }
+                }
+            }
+            
+            // Set initial height
+            setTimeout(updateContainerHeight, 100);
+            
+            // Update height on window resize
+            window.addEventListener('resize', () => {
+                setTimeout(updateContainerHeight, 200);
+            });
+
+            function startAutoRotation() {
+                if (!autoRotationInterval) {
+                    autoRotationInterval = setInterval(() => {
+                        if (!userInteracted && !isAnimating) {
+                            updateSequence((currentStep + 1) % totalSteps);
+                        }
+                    }, AUTO_ROTATION_DELAY);
+                }
+            }
+
+            function pauseAutoRotation() {
+                userInteracted = true;
+                if (autoRotationInterval) {
+                    clearInterval(autoRotationInterval);
+                    autoRotationInterval = null;
+                }
+            }
+
+            function restartAutoRotationAfterDelay() {
                 setTimeout(() => {
-                    isDeleting = true;
-                    deleteText();
-                }, 5000);
+                    userInteracted = false;
+                    startAutoRotation();
+                }, AUTO_ROTATION_DELAY);
             }
-        }
 
-        function deleteText() {
-            if (charIndex > 0) {
-                quote.innerHTML = `${text.substring(0, charIndex)}${cursorVisible ? '<span class="cursor">|</span>' : ''}`;
-                charIndex--;
+            function updateSequence(newIndex) {
+                if (isAnimating) return;
                 
-                // Schnelleres Löschen
-                setTimeout(deleteText, 15); // 15ms statt 20ms
-            } else {
-                isDeleting = false;
-                setTimeout(typeWriter, 1000);
+                // Ensure newIndex is valid
+                if (newIndex < 0 || newIndex >= totalSteps) {
+                    console.warn('Invalid sequence index:', newIndex);
+                    return;
+                }
+                
+                isAnimating = true;
+
+                // Update navigation dots
+                document.querySelectorAll('.sequence-dot').forEach((dot, index) => {
+                    dot.classList.toggle('active', index === newIndex);
+                });
+
+                // Same animation for mobile and desktop - simpler fade & slide
+                // Remove active class from current item
+                if (sequenceItems[currentStep]) {
+                    sequenceItems[currentStep].classList.remove('active');
+                }
+                
+                // Add active class to new item
+                if (sequenceItems[newIndex]) {
+                    sequenceItems[newIndex].classList.add('active');
+                    currentStep = newIndex;
+                } else {
+                    console.error('Sequence item missing:', newIndex);
+                }
+                
+                // Allow next animation after transition
+                setTimeout(() => {
+                    isAnimating = false;
+                    // Update container height after animation completes
+                    updateContainerHeight();
+                }, 600);
+            }
+
+            // Add touch swipe for mobile
+            let sequenceTouchStartX = 0;
+            let sequenceTouchEndX = 0;
+            
+            textSequenceSection.addEventListener('touchstart', (e) => {
+                sequenceTouchStartX = e.touches[0].clientX;
+            }, { passive: true });
+            
+            textSequenceSection.addEventListener('touchend', (e) => {
+                if (isAnimating) return;
+                
+                sequenceTouchEndX = e.changedTouches[0].clientX;
+                const swipeDistance = sequenceTouchEndX - sequenceTouchStartX;
+                
+                if (Math.abs(swipeDistance) > 50) {
+                    pauseAutoRotation();
+                    
+                    // Calculate next index based on swipe direction
+                    let nextIndex;
+                    if (swipeDistance > 0) {
+                        // Swipe right - go to previous
+                        nextIndex = (currentStep - 1 + totalSteps) % totalSteps;
+                    } else {
+                        // Swipe left - go to next
+                        nextIndex = (currentStep + 1) % totalSteps;
+                    }
+                    
+                    updateSequence(nextIndex);
+                    restartAutoRotationAfterDelay();
+                }
+            }, { passive: true });
+
+            // Start auto-rotation when the section is in view
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        userInteracted = false; // Reset user interaction when section comes into view
+                        startAutoRotation();
+                    } else {
+                        pauseAutoRotation();
+                    }
+                });
+            }, { threshold: 0.3 });
+
+            observer.observe(textSequenceSection);
+
+            // Handle window resize - update container height rather than reloading
+            window.addEventListener('resize', () => {
+                setTimeout(updateContainerHeight, 200);
+            });
+
+            // Scroll and Key Navigation
+            let lastScrollPosition = window.pageYOffset;
+            let scrollThreshold = 50;
+            let scrollTimeout;
+
+            window.addEventListener('scroll', () => {
+                if (!textSequenceSection || isAnimating) return;
+
+                const rect = textSequenceSection.getBoundingClientRect();
+                if (rect.top < window.innerHeight && rect.bottom > 0) {
+                    clearTimeout(scrollTimeout);
+                    
+                    scrollTimeout = setTimeout(() => {
+                        const currentScrollPosition = window.pageYOffset;
+                        const scrollDifference = currentScrollPosition - lastScrollPosition;
+
+                        if (Math.abs(scrollDifference) > scrollThreshold) {
+                            pauseAutoRotation();
+                            updateSequence((currentStep + scrollDifference) % totalSteps);
+                            lastScrollPosition = currentScrollPosition;
+                        }
+                    }, 50);
+                }
+            });
+
+            // Keyboard Navigation
+            document.addEventListener('keydown', (e) => {
+                if (!textSequenceSection || isAnimating) return;
+                const rect = textSequenceSection.getBoundingClientRect();
+                
+                if (rect.top < window.innerHeight && rect.bottom > 0) {
+                    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+                        pauseAutoRotation();
+                        updateSequence((currentStep + 1) % totalSteps);
+                        restartAutoRotationAfterDelay();
+                    } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+                        pauseAutoRotation();
+                        updateSequence((currentStep - 1 + totalSteps) % totalSteps);
+                        restartAutoRotationAfterDelay();
+                    }
+                }
+            });
+
+            // Typewriter effect for expertise quote
+            const quote = document.querySelector('.expertise-quote blockquote');
+            
+            if (quote) {
+                const text = "Die Neugierde treibt mich an. Ich suche Geschichten, die es wert sind, anderen darüber zu berichten. Dabei geht es immer um den Mehrwert. Es soll das Leben meiner Leserinnen und Leser bereichern.";
+                let charIndex = 0;
+                let isTypingComplete = false;
+                let cursorVisible = true;
+
+                // Cursor blink animation
+                setInterval(() => {
+                    if (isTypingComplete) {
+                        cursorVisible = !cursorVisible;
+                        quote.innerHTML = `${text}${cursorVisible ? '<span class="cursor">|</span>' : ''}`;
+                    }
+                }, 500);
+
+                function typeWriter() {
+                    if (charIndex < text.length) {
+                        quote.innerHTML = `${text.substring(0, charIndex + 1)}${cursorVisible ? '<span class="cursor">|</span>' : ''}`;
+                        charIndex++;
+                        
+                        // Schnellere Geschwindigkeit für das Tippen
+                        const delay = Math.random() * 30 + 20; // 20-50ms
+                        setTimeout(typeWriter, delay);
+                    } else {
+                        // Animation is complete, set flag
+                        isTypingComplete = true;
+                        // Display the full text with blinking cursor
+                        quote.innerHTML = `${text}${cursorVisible ? '<span class="cursor">|</span>' : ''}`;
+                        
+                        // Optional: After 5 seconds, hide the cursor completely
+                        setTimeout(() => {
+                            const cursorInterval = setInterval(() => {
+                                cursorVisible = !cursorVisible;
+                                if (!cursorVisible) {
+                                    quote.innerHTML = text;
+                                    clearInterval(cursorInterval);
+                                } else {
+                                    quote.innerHTML = `${text}<span class="cursor">|</span>`;
+                                }
+                            }, 500);
+                        }, 5000);
+                    }
+                }
+
+                // Ensure the element is ready and start animation
+                requestAnimationFrame(() => {
+                    quote.innerHTML = '<span class="cursor">|</span>';
+                    setTimeout(typeWriter, 1000);
+                });
             }
         }
-
-        // Ensure the element is ready and start animation
-        requestAnimationFrame(() => {
-            quote.innerHTML = '<span class="cursor">|</span>';
-            setTimeout(typeWriter, 1000);
-        });
     }
 });
 
@@ -409,54 +462,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Newsletter Form Handler
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('[Newsletter] DOM Content Loaded - Starting newsletter initialization');
     const newsletterForm = document.getElementById('newsletter-form');
     
     if (newsletterForm) {
-        console.log('[Newsletter] Found newsletter form element');
-        
-        // Log initial form state
-        const emailInput = document.getElementById('newsletter-email');
-        const submitButton = newsletterForm.querySelector('button[type="submit"]');
-        console.log('[Newsletter] Initial form state:', {
-            formId: newsletterForm.id,
-            emailInputId: emailInput.id,
-            submitButtonText: submitButton.innerHTML,
-            formAction: newsletterForm.action || 'No action set'
-        });
-
         newsletterForm.addEventListener('submit', async (e) => {
-            console.log('[Newsletter] Form submission started');
             e.preventDefault();
-            console.log('[Newsletter] Default form submission prevented');
             
             const emailInput = document.getElementById('newsletter-email');
             const submitButton = newsletterForm.querySelector('button[type="submit"]');
             const originalButtonText = submitButton.innerHTML;
             
-            // Log submission details
-            console.log('[Newsletter] Submission details:', {
-                email: emailInput.value,
-                buttonState: submitButton.disabled ? 'disabled' : 'enabled',
-                buttonText: submitButton.innerHTML,
-                timestamp: new Date().toISOString()
-            });
-
             // Disable form while submitting
-            console.log('[Newsletter] Disabling form elements');
             emailInput.disabled = true;
             submitButton.disabled = true;
             submitButton.innerHTML = '<span>Wird angemeldet...</span>';
             
             try {
-                console.log('[Newsletter] Preparing fetch request to /api/subscribe');
-                console.log('[Newsletter] Request payload:', {
-                    email: emailInput.value,
-                    url: 'https://www.rouvenzietz.de/api/subscribe'
-                });
-
-                const startTime = performance.now();
-                const response = await fetch('https://www.rouvenzietz.de/api/subscribe', {
+                const response = await fetch('/api/subscribe', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -465,77 +487,24 @@ document.addEventListener('DOMContentLoaded', () => {
                         email: emailInput.value
                     })
                 });
-                const endTime = performance.now();
-
-                console.log('[Newsletter] Server response received:', {
-                    status: response.status,
-                    statusText: response.statusText,
-                    headers: Object.fromEntries(response.headers.entries()),
-                    responseTime: `${Math.round(endTime - startTime)}ms`
-                });
 
                 const result = await response.json();
-                console.log('[Newsletter] Response data:', result);
 
                 if (result.success) {
-                    console.log('[Newsletter] Subscription successful');
                     alert('Vielen Dank für Ihre Anmeldung! Sie erhalten in Kürze eine Bestätigungs-E-Mail.');
                     newsletterForm.reset();
-                    console.log('[Newsletter] Form reset completed');
                 } else {
-                    console.error('[Newsletter] Server returned error:', result.error);
                     throw new Error(result.error || 'Anmeldung fehlgeschlagen');
                 }
             } catch (error) {
-                console.error('[Newsletter] Subscription error:', {
-                    name: error.name,
-                    message: error.message,
-                    stack: error.stack,
-                    type: error.constructor.name
-                });
-
-                // Try to parse any response that might be available
-                if (error.response) {
-                    try {
-                        const errorBody = await error.response.text();
-                        console.error('[Newsletter] Error response body:', errorBody);
-                    } catch (e) {
-                        console.error('[Newsletter] Could not read error response body');
-                    }
-                }
-
+                console.error('Newsletter subscription error:', error);
                 alert('Es gab einen Fehler bei der Anmeldung. Bitte versuchen Sie es später erneut.');
             } finally {
-                console.log('[Newsletter] Cleanup phase started');
                 // Re-enable form
                 emailInput.disabled = false;
                 submitButton.disabled = false;
                 submitButton.innerHTML = originalButtonText;
-                console.log('[Newsletter] Form elements re-enabled');
             }
         });
-
-        // Add input validation logging
-        emailInput.addEventListener('input', (e) => {
-            console.log('[Newsletter] Email input changed:', {
-                value: e.target.value,
-                valid: e.target.checkValidity(),
-                validationMessage: e.target.validationMessage
-            });
-        });
-
-        // Log form focus/blur events
-        emailInput.addEventListener('focus', () => {
-            console.log('[Newsletter] Email input focused');
-        });
-
-        emailInput.addEventListener('blur', () => {
-            console.log('[Newsletter] Email input lost focus, final value:', {
-                value: emailInput.value,
-                valid: emailInput.checkValidity()
-            });
-        });
-    } else {
-        console.error('[Newsletter] Could not find newsletter form element with id "newsletter-form"');
     }
 });
