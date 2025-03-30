@@ -1,81 +1,38 @@
-import { MailerLite } from '@mailerlite/mailerlite-nodejs';
+import MailerLite from '@mailerlite/mailerlite-nodejs';
+import dotenv from 'dotenv';
 
-export default async (req, res) => {
-  const diagnostics = {
-    apiKey: {
-      exists: false,
-      masked: null
-    },
-    testResults: {
-      connection: null,
-      createSubscriber: null
-    },
-    errors: []
-  };
+// Load environment variables
+dotenv.config({ path: '../server/.env' });
 
-  try {
-    // 1. Check API Key
-    const apiKey = process.env.MAILERLITE_API_KEY;
-    diagnostics.apiKey.exists = !!apiKey;
-    if (apiKey) {
-      diagnostics.apiKey.masked = `${apiKey.substr(0, 4)}...${apiKey.substr(-4)}`;
-    } else {
-      diagnostics.errors.push('MAILERLITE_API_KEY is not set in environment variables');
-      return res.status(500).json({
-        success: false,
-        diagnostics,
-        error: 'API key not configured'
-      });
-    }
+console.log('Starting MailerLite test...');
 
-    // 2. Initialize API Client
-    const client = new MailerLite({
-      api_key: apiKey
-    });
-    
-    // 3. Test Create Subscriber
-    try {
-      const testEmail = `test.${Date.now()}@example.com`;
-      const createResponse = await client.subscribers.create({
-        email: testEmail,
-        status: 'active'
-      });
-      
-      diagnostics.testResults.createSubscriber = {
-        success: true,
-        email: testEmail,
-        response: createResponse
-      };
+const apiKey = process.env.MAILERLITE_API_KEY;
+if (!apiKey) {
+  console.error('Error: MAILERLITE_API_KEY not found in environment variables');
+  process.exit(1);
+}
 
-      // 4. Clean up - Delete test subscriber
-      try {
-        await client.subscribers.delete(testEmail);
-      } catch (e) {
-        diagnostics.errors.push(`Cleanup failed: ${e.message}`);
-      }
+const mailerlite = new MailerLite({
+  api_key: apiKey
+});
 
-    } catch (e) {
-      diagnostics.testResults.createSubscriber = {
-        success: false,
-        error: e.message
-      };
-      diagnostics.errors.push(`Create subscriber failed: ${e.message}`);
-    }
-
-    // Return results
-    res.json({
-      success: diagnostics.errors.length === 0,
-      diagnostics,
-      timestamp: new Date().toISOString()
-    });
-
-  } catch (error) {
-    console.error('Test endpoint error:', error);
-    res.status(500).json({
-      success: false,
-      diagnostics,
-      error: error.message,
-      timestamp: new Date().toISOString()
-    });
+const params = {
+  email: 'test@test.com',
+  fields: {
+    name: 'John',
+    last_name: 'Doe'
   }
 };
+
+console.log('Attempting to create or update subscriber:', params);
+
+try {
+  const response = await mailerlite.subscribers.createOrUpdate(params);
+  console.log('Success! Subscriber data:', response.data);
+} catch (error) {
+  console.error('Error occurred:', error);
+  console.error('Error message:', error.message);
+  if (error.response) {
+    console.error('Error response:', error.response.data);
+  }
+}

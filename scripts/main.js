@@ -250,10 +250,61 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Newsletter Form Handler
 document.addEventListener('DOMContentLoaded', () => {
-    // No additional implementation needed here - MailerLite Universal handles the form submission
-    // The form with class ml-form and data-code attribute will be automatically handled
+    const newsletterForm = document.getElementById('newsletter-form');
+    
+    if (newsletterForm) {
+        newsletterForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const emailInput = document.getElementById('newsletter-email');
+            const submitButton = newsletterForm.querySelector('button[type="submit"]');
+            const originalButtonText = submitButton.innerHTML;
+            
+            // Validate email format
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(emailInput.value)) {
+                showMessage('Bitte geben Sie eine gültige E-Mail-Adresse ein.', 'error');
+                return;
+            }
+            
+            // Disable form while submitting
+            emailInput.disabled = true;
+            submitButton.disabled = true;
+            submitButton.innerHTML = '<span>Wird angemeldet...</span>';
+            
+            try {
+                const response = await fetch('/api/subscribe', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: emailInput.value
+                    })
+                });
 
-    // Show custom message function still available for other parts of the site
+                const result = await response.json();
+
+                if (result.success) {
+                    showMessage(result.message || 'Vielen Dank für Ihre Anmeldung!', 'success');
+                    newsletterForm.reset();
+                } else {
+                    throw new Error(result.error || 'Anmeldung fehlgeschlagen');
+                }
+            } catch (error) {
+                console.error('Newsletter subscription error:', error);
+                showMessage(
+                    error.message || 'Es gab einen Fehler bei der Anmeldung. Bitte versuchen Sie es später erneut.',
+                    'error'
+                );
+            } finally {
+                // Re-enable form
+                emailInput.disabled = false;
+                submitButton.disabled = false;
+                submitButton.innerHTML = originalButtonText;
+            }
+        });
+    }
 });
 
 // Helper function to show messages
