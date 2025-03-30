@@ -823,19 +823,51 @@ section {
 
 .portfolio-item {
     position: relative;
+    overflow: hidden;
+    border-radius: 10px;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: transform 0.3s ease;
 }
 
-.portfolio-item:hover {
-    transform: scale(1.05);
+.portfolio-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to bottom, rgba(138, 154, 91, 0.3), rgba(138, 154, 91, 0.4));
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 1;
+}
+
+.portfolio-item:hover::before {
+    opacity: 1;
 }
 
 .portfolio-item img {
-    height: 350px;
-    width: auto;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.portfolio-item .text-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 20px;
+    background: linear-gradient(to top, rgba(138, 154, 91, 0.6), rgba(138, 154, 91, 0));
+    color: var(--color-white);
+    transform: translateY(100%);
+    transition: transform 0.3s ease;
+    z-index: 2;
+}
+
+.portfolio-item:hover .text-overlay {
+    transform: translateY(0);
 }
 
 .portfolio-item.zoomed {
@@ -1220,6 +1252,7 @@ section {
     flex-direction: column;
     justify-content: center;
     border: 1px solid rgba(138, 154, 91, 0.1);
+    margin-bottom: 20px;
 }
 
 .sequence-item.active {
@@ -2625,4 +2658,11 @@ section {
         word-wrap: break-word;
         max-width: 85vw;
     }
+}
+
+/* Add a fallback style to ensure items are visible if JS fails */
+.sequence-items-wrapper:hover .sequence-item {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
 }

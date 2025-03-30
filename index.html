@@ -182,6 +182,17 @@
                     </div>
                 </div>
             </div>
+            <script>
+                // Immediate initialization of sequence items
+                document.querySelectorAll('.sequence-item').forEach((item, index) => {
+                    setTimeout(() => {
+                        item.style.visibility = 'visible';
+                        item.style.opacity = '1';
+                        item.style.transform = 'translateY(0)';
+                        item.classList.add('active');
+                    }, index * 300); // Stagger the animations
+                });
+            </script>
         </section>
 
         <!-- Portfolio-Sektion -->

@@ -1,5 +1,9 @@
 {
   "name": "rouven-website-api",
   "version": "1.0.0",
-  "dependencies": {}
+  "type": "module",
+  "dependencies": {
+    "@mailerlite/mailerlite-nodejs": "latest",
+    "dotenv": "^16.4.7"
+  }
 }

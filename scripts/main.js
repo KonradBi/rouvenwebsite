@@ -4,6 +4,23 @@ let lastScrollTop = 0;
 const nav = document.querySelector('.side-nav');
 let isNavVisible = true;
 
+// Ensure sequence items are visible
+function ensureSequenceItemsVisible() {
+    const sequenceItems = document.querySelectorAll('.sequence-item');
+    if (sequenceItems.length > 0) {
+        console.log('Ensuring sequence items are visible');
+        sequenceItems.forEach((item, index) => {
+            item.style.visibility = 'visible';
+            item.style.opacity = '1';
+            item.style.transform = 'translateY(0)';
+            item.classList.add('active');
+        });
+    }
+}
+
+// Set a backup timeout to force display of sequence items
+setTimeout(ensureSequenceItemsVisible, 2000);
+
 // Scroll-Event-Handler für Navigation
 window.addEventListener('scroll', () => {
     const currentScroll = window.pageYOffset || document.documentElement.scrollTop;
@@ -144,6 +161,13 @@ document.addEventListener('DOMContentLoaded', () => {
             
             isAnimating = true;
             
+            // Make all items visible initially to ensure they appear
+            sequenceItems.forEach(item => {
+                item.style.visibility = 'visible';
+                item.style.opacity = '0.3';
+            });
+            
+            // Then animate them one by one with full opacity
             if (currentIndex < sequenceItems.length) {
                 sequenceItems[currentIndex].classList.add('active');
                 
@@ -158,14 +182,20 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // Start showing items when section comes into view
+        // Start showing items immediately without intersection observer
+        // to ensure they're always visible
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(showNextItem, 500);
+        });
+        
+        // Also keep the intersection observer as a backup
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting && currentIndex === 0) {
                     showNextItem();
                 }
             });
-        }, { threshold: 0.3 });
+        }, { threshold: 0.1 });  // Lower threshold for earlier detection
 
         observer.observe(textSequenceSection);
     }
