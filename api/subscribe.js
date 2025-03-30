@@ -12,6 +12,9 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
   res.setHeader('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version');
+  
+  // Add Content-Security-Policy header
+  res.setHeader('Content-Security-Policy', "default-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:;");
 
   // Handle OPTIONS request
   if (req.method === 'OPTIONS') {
@@ -82,6 +85,8 @@ export default async function handler(req, res) {
       console.log('[API] Sending confirmation email to subscriber');
       
       // Create and send confirmation email directly through MailerLite
+      const emailHtml = '<html><body><h2>Vielen Dank für Ihre Anmeldung zum Newsletter!</h2><p>Sehr geehrte/r Abonnent/in,</p><p>Vielen Dank für Ihre Anmeldung zu meinem Newsletter. Sie werden zukünftig über Neuigkeiten, Veranstaltungen und wichtige Updates informiert.</p><p>Mit freundlichen Grüßen,<br>Rouven Zietz</p></body></html>';
+      
       await mailerlite.campaigns.send({
         type: 'regular',
         subject: 'Bestätigung Ihrer Newsletter-Anmeldung',
@@ -89,16 +94,7 @@ export default async function handler(req, res) {
         groups: process.env.MAILERLITE_GROUP_ID ? [process.env.MAILERLITE_GROUP_ID] : [],
         emails: [email],
         content: {
-          html: `
-          <html>
-            <body>
-              <h2>Vielen Dank für Ihre Anmeldung zum Newsletter!</h2>
-              <p>Sehr geehrte/r Abonnent/in,</p>
-              <p>Vielen Dank für Ihre Anmeldung zu meinem Newsletter. Sie werden zukünftig über Neuigkeiten, Veranstaltungen und wichtige Updates informiert.</p>
-              <p>Mit freundlichen Grüßen,<br>Rouven Zietz</p>
-            </body>
-          </html>
-          `
+          html: emailHtml
         }
       });
       console.log('[API] Confirmation email sent successfully');
