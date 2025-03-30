@@ -1,4 +1,6 @@
-module.exports = async (req, res) => {
+import MailerLite from '@mailerlite/mailerlite-nodejs';
+
+export default async function handler(req, res) {
   console.log('[API] Newsletter subscription request received:', {
     method: req.method,
     headers: req.headers,
@@ -20,7 +22,10 @@ module.exports = async (req, res) => {
 
   if (req.method !== 'POST') {
     console.log('[API] Invalid method:', req.method);
-    return res.status(405).json({ error: 'Method not allowed' });
+    return res.status(405).json({ 
+      success: false, 
+      error: 'Method not allowed' 
+    });
   }
 
   try {
@@ -29,59 +34,45 @@ module.exports = async (req, res) => {
     
     if (!email) {
       console.log('[API] Email missing in request');
-      return res.status(400).json({ error: 'Email is required' });
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Email is required' 
+      });
     }
 
     console.log('[API] Checking API key');
-    if (!process.env.MAILERLITE_API_KEY) {
-      console.error('[API] MAILERLITE_API_KEY not found in environment variables');
-      return res.status(500).json({ error: 'API key not configured' });
+    const apiKey = process.env.MAILERLITE_API_KEY;
+    if (!apiKey) {
+      console.error('MAILERLITE_API_KEY not found in environment variables');
+      return res.status(500).json({ 
+        success: false, 
+        error: 'Newsletter service configuration error' 
+      });
     }
 
     console.log('[API] Sending request to MailerLite API');
-    const response = await fetch('https://connect.mailerlite.com/api/subscribers', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.MAILERLITE_API_KEY}`
-      },
-      body: JSON.stringify({
-        email: email,
-        status: 'active'
-      })
+    const mailerlite = new MailerLite({
+      api_key: apiKey
     });
 
-    const result = await response.json();
-    console.log('[API] MailerLite API response:', result);
-
-    if (!response.ok) {
-      throw new Error(result.message || 'Failed to subscribe');
-    }
+    // Create or update subscriber
+    const response = await mailerlite.subscribers.createOrUpdate({
+      email: email,
+      status: 'active',
+      fields: {
+        source: 'Website Newsletter Form'
+      }
+    });
 
     // If group ID is configured, add subscriber to group
     if (process.env.MAILERLITE_GROUP_ID) {
       console.log('[API] Adding subscriber to group:', process.env.MAILERLITE_GROUP_ID);
       try {
-        const groupResponse = await fetch(`https://connect.mailerlite.com/api/groups/${process.env.MAILERLITE_GROUP_ID}/subscribers/${email}`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${process.env.MAILERLITE_API_KEY}`
-          }
-        });
-
-        const groupResult = await groupResponse.json();
-        console.log('[API] Group assignment response:', groupResult);
-
-        if (!groupResponse.ok) {
-          console.error('[API] Failed to add to group:', groupResult);
-        } else {
-          console.log('[API] Successfully added to group');
-        }
+        await mailerlite.groups.addSubscribers(process.env.MAILERLITE_GROUP_ID, [{
+          email: email
+        }]);
       } catch (groupError) {
-        console.error('[API] Failed to add subscriber to group:', {
-          error: groupError.message,
-          stack: groupError.stack
-        });
+        console.error('[API] Failed to add subscriber to group:', groupError);
         // Don't fail the whole request if just the group assignment fails
       }
     }
@@ -89,20 +80,29 @@ module.exports = async (req, res) => {
     console.log('[API] Subscription successful');
     res.json({ 
       success: true, 
-      message: 'Successfully subscribed to newsletter'
+      message: 'Vielen Dank für Ihre Anmeldung! Sie erhalten in Kürze eine Bestätigungs-E-Mail.'
     });
   } catch (error) {
-    console.error('[API] Subscription error:', {
-      name: error.name,
-      message: error.message,
-      stack: error.stack
-    });
+    console.error('Newsletter subscription error:', error);
 
-    // Send a proper JSON response
+    // Handle specific MailerLite errors
+    if (error.response?.status === 422) {
+      return res.status(422).json({
+        success: false,
+        error: 'Diese E-Mail-Adresse scheint ungültig zu sein. Bitte überprüfen Sie Ihre Eingabe.'
+      });
+    }
+
+    if (error.response?.status === 429) {
+      return res.status(429).json({
+        success: false,
+        error: 'Zu viele Anfragen. Bitte versuchen Sie es in einigen Minuten erneut.'
+      });
+    }
+
     res.status(500).json({ 
       success: false, 
-      error: 'Failed to subscribe to newsletter. Please try again later.',
-      details: error.message
+      error: 'Es gab einen Fehler bei der Newsletter-Anmeldung. Bitte versuchen Sie es später erneut.' 
     });
   }
-};
+}
