@@ -77,6 +77,36 @@ export default async function handler(req, res) {
       }
     }
 
+    // Send confirmation email to the user
+    try {
+      console.log('[API] Sending confirmation email to subscriber');
+      
+      // Create and send confirmation email directly through MailerLite
+      await mailerlite.campaigns.send({
+        type: 'regular',
+        subject: 'Bestätigung Ihrer Newsletter-Anmeldung',
+        from: process.env.RECIPIENT_EMAIL || 'rz@rouvenzietz.de',
+        groups: process.env.MAILERLITE_GROUP_ID ? [process.env.MAILERLITE_GROUP_ID] : [],
+        emails: [email],
+        content: {
+          html: `
+          <html>
+            <body>
+              <h2>Vielen Dank für Ihre Anmeldung zum Newsletter!</h2>
+              <p>Sehr geehrte/r Abonnent/in,</p>
+              <p>Vielen Dank für Ihre Anmeldung zu meinem Newsletter. Sie werden zukünftig über Neuigkeiten, Veranstaltungen und wichtige Updates informiert.</p>
+              <p>Mit freundlichen Grüßen,<br>Rouven Zietz</p>
+            </body>
+          </html>
+          `
+        }
+      });
+      console.log('[API] Confirmation email sent successfully');
+    } catch (emailError) {
+      console.error('[API] Failed to send confirmation email:', emailError);
+      // Don't fail the whole request if just the confirmation email fails
+    }
+
     console.log('[API] Subscription successful');
     res.json({ 
       success: true, 
