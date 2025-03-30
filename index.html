@@ -6,10 +6,55 @@
     <title>Rouven Zietz | Journalist & Storyteller</title>
     <link rel="stylesheet" href="/styles/main.css">
     <link rel="icon" type="image/png" href="/images/Logo-rz.png">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Courier+New:wght@400;700&family=Times+New+Roman:wght@400;700&display=swap" rel="stylesheet">
-    <script defer src="/scripts/main.js"></script>
+    
+    <!-- Google Fonts will be loaded dynamically based on consent -->
+    <script>
+        function loadGoogleFonts() {
+            const link1 = document.createElement('link');
+            link1.rel = 'preconnect';
+            link1.href = 'https://fonts.googleapis.com';
+            document.head.appendChild(link1);
+
+            const link2 = document.createElement('link');
+            link2.rel = 'preconnect';
+            link2.href = 'https://fonts.gstatic.com';
+            link2.crossOrigin = 'anonymous';
+            document.head.appendChild(link2);
+
+            const link3 = document.createElement('link');
+            link3.rel = 'stylesheet';
+            link3.href = 'https://fonts.googleapis.com/css2?family=Courier+New:wght@400;700&family=Times+New+Roman:wght@400;700&display=swap';
+            document.head.appendChild(link3);
+        }
+
+        // Check consent status on page load
+        if (localStorage.getItem('cookieConsent') === 'accepted') {
+            loadGoogleFonts();
+        }
+    </script>
+    <style>
+        /* Fallback fonts if Google Fonts are rejected */
+        @font-face {
+            font-family: 'Courier New';
+            src: local('Courier New');
+            font-weight: 400;
+        }
+        @font-face {
+            font-family: 'Courier New';
+            src: local('Courier New Bold');
+            font-weight: 700;
+        }
+        @font-face {
+            font-family: 'Times New Roman';
+            src: local('Times New Roman');
+            font-weight: 400;
+        }
+        @font-face {
+            font-family: 'Times New Roman';
+            src: local('Times New Roman Bold');
+            font-weight: 700;
+        }
+    </style>
 </head>
 <body>
     <nav class="side-nav">
@@ -69,26 +114,26 @@
         <!-- Expertise-Sektion -->
         <section id="expertise" class="full-height">
             <div class="container">
-                <h2>Was ich tue</h2>
+                <h2>Kompetenzen</h2>
                 <div class="expertise-grid">
                     <div class="expertise-card">
                         <div class="card-content">
-                            <h3>Reportagen</h3>
-                            <p>Ein Reporter geht raus und bringt etwas zurück, was er vorher noch nicht kannte. Die Reportage stammt von dem lateinischen Begriff reportāre - etwas zurückbringen, zurücktragen.</p>
+                            <h3>AGRAR</h3>
+                            <p>Was wir essen und wie wir unsere Nahrungsmittel produzieren, ist ein essenzielles Thema. Mit den Facetten von Landwirten und Verbrauchern befasse ich mich intensiv.</p>
                         </div>
                         <div class="hover-line"></div>
                     </div>
                     <div class="expertise-card">
                         <div class="card-content">
-                            <h3>Umwelt-Themen</h3>
-                            <p>Das Thema der Nahrungsmittelproduktion ist ein sehr komplexes und spannendes Thema. Heute schreibe ich über Agrarpolitik, den Alltag von Landwirten und bin Kolumnist zum Thema Kreislaufwirtschaft.</p>
+                            <h3>WIRTSCHAFT</h3>
+                            <p>Ein Weg, um die große Verschwendung durch den unachtsamen Verbrauch unserer Ressourcen zu stoppen, ist die Kreislaufwirtschaft. Als Kolumnist befasse ich mich wöchentlich intensiv mit dem Thema.</p>
                         </div>
                         <div class="hover-line"></div>
                     </div>
                     <div class="expertise-card">
                         <div class="card-content">
-                            <h3>Reise-Storys</h3>
-                            <p>Das spannende an meinem Beruf ist es, Menschen zu treffen, die was bewegen wollen. Ich treffe sie gern im Ausland und schreibe auch über die Länder und Situationen vor Ort.</p>
+                            <h3>REISEN</h3>
+                            <p>Andere Länder zu entdecken und die Lebensrealitäten von Menschen zu erleben, hilft einem zu wachsen und zu verstehen. Als Reporter bringe ich Geschichten mit, die andere inspirieren sollen.</p>
                         </div>
                         <div class="hover-line"></div>
                     </div>
@@ -98,7 +143,7 @@
                     <div class="expertise-quote-image">
                         <div class="expertise-quote scroll-reveal">
                             <blockquote>
-                                "Die Neugierde treibt mich an. Ich suche Geschichten, die es wert sind, anderen darüber zu berichten. Dabei geht es immer um den Mehrwert. Es soll das Leben meiner Leserinnen und Leser bereichern."
+                                "Die Neugierde treibt mich an. Ich entdecke Geschichten, die erzählt werden müssen. Mein Ziel: Inhalte mit echtem Mehrwert, die das Leben meiner Leser bereichern und neue Perspektiven eröffnen."
                             </blockquote>
                         </div>
                         <div class="mission-image scroll-reveal">
@@ -114,20 +159,22 @@
             <div class="container">
                 <div class="sticky-sequence">
                     <div class="sequence-container">
-                        <div class="sequence-item" data-step="1">
-                            <p>Gute <span class="marker circle">journalistische Texte</span> sind die Grundlage erfolgreicher Kommunikation. Sie zeichnen sich durch <span class="marker underline">drei wesentliche Merkmale</span> aus, die den Unterschied machen.</p>
-                        </div>
-                        <div class="sequence-item" data-step="2">
-                            <p><span class="marker circle">Klarheit und Prägnanz</span> stehen an erster Stelle. Denn nur Texte, die <span class="marker underline">leicht zu lesen sind und die wichtigsten Fragen direkt beantworten</span>, erreichen ihr Ziel.</p>
-                        </div>
-                        <div class="sequence-item" data-step="3">
-                            <p><span class="marker circle">Struktur</span> ist der Schlüssel zum Erfolg. Ein <span class="marker underline">durchdachter roter Faden und cleveres Storytelling halten den Leser von der ersten bis zur letzten Zeile im Bann</span>.</p>
-                        </div>
-                        <div class="sequence-item">
-                            <p>Journalismus <span class="highlight-word">fühlt</span> den Puls der Zeit.</p>
-                        </div>
-                        <div class="sequence-item">
-                            <p><span class="large-initial">D</span>ie Kunst, komplexe Themen verständlich zu vermitteln.</p>
+                        <div class="sequence-items-wrapper">
+                            <div class="sequence-item" data-step="1">
+                                <p>Mit <span class="marker circle">Präzision</span> komplexe Themen <span class="marker underline">entschlüsseln</span>.</p>
+                            </div>
+                            <div class="sequence-item" data-step="2">
+                                <p>Mit <span class="marker circle">Klarheit</span> den Informationsdschungel <span class="marker underline">lichten</span>.</p>
+                            </div>
+                            <div class="sequence-item" data-step="3">
+                                <p>Mit <span class="marker circle">Storytelling</span> Inhalte <span class="marker underline">unvergesslich machen</span>.</p>
+                            </div>
+                            <div class="sequence-item" data-step="4">
+                                <p>Mit <span class="marker circle">Struktur</span> Leser von Anfang bis Ende <span class="marker underline">fesseln</span>.</p>
+                            </div>
+                            <div class="sequence-item" data-step="5">
+                                <p>Mit <span class="marker circle">Feingefühl</span> den Puls der Zeit <span class="marker underline">erspüren</span>.</p>
+                            </div>
                         </div>
                     </div>
                     <div class="sequence-footnote">
@@ -221,16 +268,17 @@
                 
                 <article class="about-content">
                     <h2 class="main-title">
-                        <span class="title-line">So</span>
+                        <span class="title-line">Worte,</span>
                         <span class="title-line">
-                            <span class="highlight-word">fühlt</span> es
+                            <span class="highlight-word">die</span> was
                         </span>
-                        <span class="title-line">sich an</span>
+                        <span class="title-line">wollen</span>
                     </h2>
 
                     <div class="content-grid">
                         <div class="lead-text">
-                            <p>In der sich rasant wandelnden Medienwelt steht Rouven Zietz für einen Journalismus, der Grenzen überwindet. Als versierter Storyteller hat er sich einen Namen gemacht, indem er komplexe Themen in fesselnde Geschichten verwandelt, die sowohl informieren als auch berühren.</p>
+                            <p>Manchmal reicht ein Satz, um etwas ins Rollen zu bringen. Ich suche nach genau diesen Sätzen – jeden Tag aufs Neue. 
+Ich bin Reporter und Journalist – neugierig, offen, mit einem feinen Gespür für Themen, die zählen. Ich habe Reportagen geschrieben, Interviews geführt und Fachartikel verfasst – quer durch alle gesellschaftlichen Bereiche. Vom Krankenpfleger bis zum Spitzenpolitiker: Ich durfte viele beeindruckende Menschen treffen und ihre Geschichten erzählen.</p>
                         </div>
 
                         <div class="portrait">
@@ -238,9 +286,19 @@
                         </div>
 
                         <div class="main-text">
-                            <p class="has-initial" data-initial="D">Die Kunst des Journalismus liegt darin, die richtigen Fragen zu stellen und genau hinzuhören", erklärt Zietz in seinem Hamburger Büro. Seine Spezialität: die perfekte Balance zwischen investigativer Tiefe und leserfreundlicher Aufbereitung.</p>
+                            <p class="has-initial" data-initial="I">Ich bin Reporter und Journalist – neugierig, offen, mit einem feinen Gespür für Themen, die zählen. Ich habe Reportagen geschrieben, Interviews geführt und Fachartikel verfasst – quer durch alle gesellschaftlichen Bereiche. Vom Krankenpfleger bis zum Spitzenpolitiker: Ich durfte viele beeindruckende Menschen treffen und ihre Geschichten erzählen.</p>
                             
-                            <p>Ob Umweltthemen, Reisereportagen oder Wirtschaftsanalysen - seine Arbeiten zeichnen sich durch akribische Recherche und einen unverwechselbaren Stil aus. "Jede Geschichte hat ihre eigene Stimme", betont er. "Meine Aufgabe ist es, diese Stimme zu finden und ihr Gehör zu verschaffen."</p>
+                            <p><strong>Was mich antreibt?</strong>
+ Meine Neugier. Mein Interesse an Menschen. Und der Wunsch, Informationen nicht nur korrekt, sondern auch mit Gefühl und Gewicht weiterzugeben – verpackt in Texte, die leicht lesbar sind und im Kopf bleiben.</p>
+
+                            <p>Nach Reisen durch Asien und Südamerika bin ich ins Schreiben eingestiegen – mit Stationen in der Lokalpresse, im Volontariat und einem berufsbegleitenden Master in Medienjournalismus.
+Seit 2017 arbeite ich wieder als freier Journalist.</p>
+
+                            <p>Neben meiner publizistischen Arbeit gebe ich meine Expertise auch als Kommunikationsberater weiter – an Organisationen, Unternehmen und Institutionen, die ihre Inhalte klar und überzeugend auf den Punkt bringen wollen.</p>
+
+                            <p><strong>Worte allein reichen nicht. Es braucht Klarheit, Haltung und Strategie. Wenn du das suchst – lass uns sprechen.</strong></p>
+
+                            <p>Ich freue mich, von dir zu hören.</p>
                         </div>
                     </div>
                 </article>
@@ -251,14 +309,12 @@
         <section id="newsletter" class="newsletter-section">
             <div class="newsletter-left">
                 <h2 class="dramatic-title">
-                    <span class="title-line">Bleiben Sie</span>
-                    <span class="title-line">Teil der</span>
-                    <span class="title-line">Geschichte</span>
+                    <span class="title-line">Mehr als</span>
+                    <span class="title-line">Geschichten</span>
                 </h2>
                 
                 <p class="newsletter-lead">
-                    Jeden Monat sende ich Ihnen die faszinierendsten Geschichten direkt in Ihr Postfach. 
-                    Geschichten, die bewegen. Geschichten, die bleiben.
+                    In meinem Newsletter geht's um Kommunikation mit Tiefgang – Texte, Strategien und Perspektiven für alle, die etwas zu sagen haben.
                 </p>
 
                 <form class="newsletter-form" id="newsletter-form">
@@ -286,15 +342,15 @@
         <section id="mood" class="mood-section">
             <div class="mood-container">
                 <div class="mood-header">
-                    <h2>Handeln</h2>
-                    <p class="mood-description">Visuelle Eindrücke meiner journalistischen Arbeit</p>
+                    <h2>Sprich mit Menschen und die Welt wird größer</h2>
+                    <p class="mood-description">Reportage. Recherche. Realität.</p>
                 </div>
                 <div class="mood-grid">
                     <div class="mood-item">
                         <img src="/images/Handeln1.jpg" alt="Journalistische Impression 1">
                         <div class="mood-caption">
                             <h3>Recherche vor Ort</h3>
-                            <p>Eindrücke aus der täglichen Arbeit als Journalist</p>
+                            <p>Draußen statt drüber – mitten im Leben, mitten im Thema</p>
                         </div>
                     </div>
                     <div class="mood-item">
@@ -308,35 +364,35 @@
                         <img src="/images/Handeln3.jpg" alt="Journalistische Impression 3">
                         <div class="mood-caption">
                             <h3>Perspektivwechsel</h3>
-                            <p>Neue Blickwinkel entdecken und dokumentieren</p>
+                            <p>Weil Zuhören verändert</p>
                         </div>
                     </div>
                     <div class="mood-item">
                         <img src="/images/Handeln4.jpg" alt="Journalistische Impression 4">
                         <div class="mood-caption">
-                            <h3>Momente einfangen</h3>
-                            <p>Die kleinen Details machen die Geschichte lebendig</p>
+                            <h3>Online-Präsenz</h3>
+                            <p>Hier findest du mich – digital, aber immer persönlich</p>
                         </div>
                     </div>
                     <div class="mood-item">
                         <img src="/images/Handeln5.jpg" alt="Journalistische Impression 5">
                         <div class="mood-caption">
-                            <h3>Vor Ort sein</h3>
-                            <p>Dort wo die Geschichten entstehen</p>
+                            <h3>Ein Anruf kostet nichts</h3>
+                            <p>Echte Geschichten schreibt das Leben – und die Menschen, die davon erzählen.</p>
                         </div>
                     </div>
                     <div class="mood-item">
                         <img src="/images/Handeln6.jpg" alt="Journalistische Impression 6">
                         <div class="mood-caption">
-                            <h3>Menschen treffen</h3>
-                            <p>Authentische Begegnungen schaffen</p>
+                            <h3>WLAN, Wellen, Wortgewandtheit</h3>
+                            <p>Manche Ideen kommen am Schreibtisch. Andere mit Sand unter den Füßen</p>
                         </div>
                     </div>
                     <div class="mood-item">
                         <img src="/images/Handeln7.jpeg" alt="Journalistische Impression 7">
                         <div class="mood-caption">
-                            <h3>Geschichten erzählen</h3>
-                            <p>Jedes Detail zählt für die perfekte Story</p>
+                            <h3>Lässig, aber messerscharf</h3>
+                            <p>Weil echte Ideen Platz brauchen – und nicht immer Schuhe.</p>
                         </div>
                     </div>
                 </div>
@@ -362,8 +418,8 @@
                     
                     <div class="service-step">
                         <span class="step-number">P</span>
-                        <h3>PR-Beratung</h3>
-                        <p>Strategische Kommunikationsberatung mit journalistischem Hintergrund. Von der Konzeption bis zur Umsetzung Ihrer PR-Kampagnen.</p>
+                        <h3>Beratung</h3>
+                        <p>Kommunikation mit Haltung: Mit klarem Blick für Inhalte, Zielgruppen und Wirkung. Für alle, die mehr wollen als schöne Worte.</p>
                     </div>
                 </div>
             </div>
@@ -375,16 +431,14 @@
                 <div class="contact-grid">
                     <div class="contact-info">
                         <h2>Kontakt</h2>
-                        <p class="contact-lead">Lassen Sie uns gemeinsam Ihre Geschichte erzählen. Ich freue mich auf den Austausch mit Ihnen.</p>
+                        <p class="contact-lead">Bereit für starke Kommunikation?<br>
+Dann lass uns sprechen – über Strategien,<br>
+Geschichten und Worte, die wirken.</p>
                         
                         <div class="contact-details">
                             <div class="contact-item">
-                                <span class="contact-label">E-Mail</span>
-                                <a href="mailto:rz@rouvenzietz.de" class="contact-link">rz(at)rouvenzietz.de</a>
-                            </div>
-                            <div class="contact-item">
-                                <span class="contact-label">Standort</span>
-                                <span>Hamburg, Deutschland</span>
+                                <span class="contact-label">Ort</span>
+                                <span>Augsburg, Deutschland</span>
                             </div>
                         </div>
                     </div>
@@ -411,7 +465,8 @@
                                         <option value="" disabled selected>Bitte wählen Sie</option>
                                         <option value="workshop">Workshop Anfrage</option>
                                         <option value="moderation">Moderation Anfrage</option>
-                                        <option value="pr">PR-Beratung</option>
+                                        <option value="recherche">Auftrag Recherche</option>
+                                        <option value="beratung">Kommunikationsberatung</option>
                                         <option value="other">Sonstiges</option>
                                     </select>
                                     <label for="subject">Betreff</label>
@@ -444,5 +499,140 @@
             </div>
         </div>
     </footer>
+
+    <!-- Cookie Consent -->
+    <div id="cookie-banner" style="display: none;">
+        <div class="cookie-content">
+            <p>Diese Website verwendet notwendige Cookies und Google Fonts:<br>
+               • Technisch notwendige Cookies für grundlegende Funktionen<br>
+               • Google Fonts für die Darstellung von Schriftarten<br><br>
+               Bei Ablehnung werden nur notwendige Cookies gesetzt und lokale Schriftarten verwendet. 
+               Weitere Informationen finden Sie in unserer <a href="/datenschutz.html" style="color: white; text-decoration: underline;">Datenschutzerklärung</a>.</p>
+            <div class="cookie-buttons">
+                <button id="accept-cookies" class="cookie-button accept">Alle akzeptieren</button>
+                <button id="reject-cookies" class="cookie-button reject">Nur notwendige Cookies</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Cookie Consent Handler
+        document.addEventListener('DOMContentLoaded', function() {
+            const cookieBanner = document.getElementById('cookie-banner');
+            const acceptButton = document.getElementById('accept-cookies');
+            const rejectButton = document.getElementById('reject-cookies');
+
+            function setCookie(name, value, days) {
+                let expires = "";
+                if (days) {
+                    const date = new Date();
+                    date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+                    expires = "; expires=" + date.toUTCString();
+                }
+                document.cookie = name + "=" + (value || "") + expires + "; path=/; SameSite=Lax";
+            }
+
+            // Show banner if no choice has been made
+            if (!localStorage.getItem('cookieConsent')) {
+                cookieBanner.style.display = 'block';
+            }
+
+            acceptButton.addEventListener('click', function() {
+                localStorage.setItem('cookieConsent', 'accepted');
+                setCookie('cookieConsent', 'accepted', 365); // Cookie für 1 Jahr
+                setCookie('necessaryCookies', 'true', 365);
+                cookieBanner.style.display = 'none';
+                loadGoogleFonts();
+            });
+
+            rejectButton.addEventListener('click', function() {
+                localStorage.setItem('cookieConsent', 'rejected');
+                setCookie('cookieConsent', 'rejected', 365); // Cookie für 1 Jahr
+                setCookie('necessaryCookies', 'true', 365);
+                cookieBanner.style.display = 'none';
+                // Remove any existing Google Fonts if they were loaded
+                document.querySelectorAll('link[href*="fonts.googleapis.com"], link[href*="fonts.gstatic.com"]')
+                    .forEach(link => link.remove());
+            });
+        });
+    </script>
+
+    <style>
+        #cookie-banner {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(138, 154, 91, 0.95);
+            color: white;
+            padding: 1.5rem;
+            z-index: 1000;
+            font-family: 'Courier New', monospace;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .cookie-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .cookie-content p {
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        .cookie-buttons {
+            display: flex;
+            gap: 1rem;
+            flex-shrink: 0;
+        }
+
+        .cookie-button {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'Times New Roman', serif;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .cookie-button.accept {
+            background: white;
+            color: var(--color-sage);
+        }
+
+        .cookie-button.reject {
+            background: transparent;
+            color: white;
+            border: 1px solid white;
+        }
+
+        .cookie-button:hover {
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 768px) {
+            .cookie-content {
+                flex-direction: column;
+                text-align: center;
+                gap: 1rem;
+            }
+
+            .cookie-buttons {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .cookie-button {
+                width: 100%;
+                margin: 0;
+            }
+        }
+    </style>
 </body>
 </html>

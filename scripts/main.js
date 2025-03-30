@@ -134,301 +134,40 @@ document.addEventListener('DOMContentLoaded', () => {
     // Text-Sequence Animation
     const textSequenceSection = document.querySelector('#text-sequence');
     
-    // Add safety check - only run sequence code if the section exists
     if (textSequenceSection) {
         const sequenceItems = document.querySelectorAll('.sequence-item');
-        
-        // Check if we have any sequence items
-        if (sequenceItems && sequenceItems.length > 0) {
-            let currentStep = 0;
-            const totalSteps = sequenceItems.length;
-            let isAnimating = false;
-            let autoRotationInterval;
-            let userInteracted = false;
-            const AUTO_ROTATION_DELAY = 12000; // 12 seconds between automatic transitions
+        let currentIndex = 0;
+        let isAnimating = false;
+
+        function showNextItem() {
+            if (isAnimating || currentIndex >= sequenceItems.length) return;
             
-            // Check if we're on mobile
-            const isMobile = window.innerWidth <= 768;
-
-            // Erstelle Navigationspunkte
-            const navigation = document.createElement('div');
-            navigation.className = 'sequence-navigation';
-            sequenceItems.forEach((_, index) => {
-                const dot = document.createElement('div');
-                dot.className = `sequence-dot${index === 0 ? ' active' : ''}`;
-                dot.addEventListener('click', () => {
-                    if (!isAnimating && index !== currentStep) {
-                        pauseAutoRotation();
-                        updateSequence(index);
-                        restartAutoRotationAfterDelay();
-                    }
-                });
-                navigation.appendChild(dot);
-            });
+            isAnimating = true;
             
-            // Add a check to ensure container exists
-            const sequenceContainer = textSequenceSection ? textSequenceSection.querySelector('.sequence-container') : null;
-            if (sequenceContainer) {
-                sequenceContainer.appendChild(navigation);
-            } else {
-                console.error('Sequence container not found');
-            }
-
-            // Setze erste Sequenz
-            if (sequenceItems.length > 0 && sequenceItems[0]) {
-                sequenceItems[0].classList.add('active');
-            }
-            
-            // Initialize height for the sequence container based on content
-            function updateContainerHeight() {
-                const activeItem = document.querySelector('.sequence-item.active');
-                if (activeItem && sequenceContainer) {
-                    // Add small buffer for spacing
-                    const containerHeight = activeItem.offsetHeight + 80;
-                    sequenceContainer.style.minHeight = `${containerHeight}px`;
-                }
-            }
-            
-            // Set initial height
-            setTimeout(updateContainerHeight, 100);
-            
-            // Update height on window resize
-            window.addEventListener('resize', () => {
-                setTimeout(updateContainerHeight, 200);
-            });
-
-            function startAutoRotation() {
-                if (!autoRotationInterval) {
-                    autoRotationInterval = setInterval(() => {
-                        if (!userInteracted && !isAnimating) {
-                            const nextIndex = (currentStep + 1) % totalSteps;
-                            if (nextIndex >= 0 && nextIndex < totalSteps) {
-                                updateSequence(nextIndex);
-                            }
-                        }
-                    }, AUTO_ROTATION_DELAY);
-                }
-            }
-
-            function pauseAutoRotation() {
-                userInteracted = true;
-                if (autoRotationInterval) {
-                    clearInterval(autoRotationInterval);
-                    autoRotationInterval = null;
-                }
-            }
-
-            function restartAutoRotationAfterDelay() {
-                setTimeout(() => {
-                    userInteracted = false;
-                    startAutoRotation();
-                }, AUTO_ROTATION_DELAY);
-            }
-
-            function updateSequence(newIndex) {
-                if (isAnimating) return;
+            if (currentIndex < sequenceItems.length) {
+                sequenceItems[currentIndex].classList.add('active');
                 
-                // Ensure newIndex is valid
-                if (newIndex < 0 || newIndex >= totalSteps) {
-                    console.warn('Invalid sequence index:', newIndex);
-                    return;
-                }
-                
-                isAnimating = true;
-
-                // Safely update navigation dots
-                const dots = document.querySelectorAll('.sequence-dot');
-                if (dots && dots.length > 0) {
-                    dots.forEach((dot, index) => {
-                        if (dot) {
-                            dot.classList.toggle('active', index === newIndex);
-                        }
-                    });
-                }
-
-                // Same animation for mobile and desktop - simpler fade & slide
-                // Remove active class from current item safely
-                if (currentStep >= 0 && currentStep < sequenceItems.length && sequenceItems[currentStep]) {
-                    sequenceItems[currentStep].classList.remove('active');
-                }
-                
-                // Add active class to new item safely
-                if (newIndex >= 0 && newIndex < sequenceItems.length && sequenceItems[newIndex]) {
-                    sequenceItems[newIndex].classList.add('active');
-                    currentStep = newIndex;
-                } else {
-                    console.error('Sequence item missing:', newIndex);
-                    isAnimating = false;
-                    return;
-                }
-                
-                // Allow next animation after transition
+                // Wait for animation to complete
                 setTimeout(() => {
                     isAnimating = false;
-                    // Update container height after animation completes
-                    updateContainerHeight();
-                }, 600);
-            }
-
-            // Add touch swipe for mobile
-            let sequenceTouchStartX = 0;
-            let sequenceTouchEndX = 0;
-            
-            textSequenceSection.addEventListener('touchstart', (e) => {
-                sequenceTouchStartX = e.touches[0].clientX;
-            }, { passive: true });
-            
-            textSequenceSection.addEventListener('touchend', (e) => {
-                if (isAnimating) return;
-                
-                sequenceTouchEndX = e.changedTouches[0].clientX;
-                const swipeDistance = sequenceTouchEndX - sequenceTouchStartX;
-                
-                if (Math.abs(swipeDistance) > 50) {
-                    pauseAutoRotation();
-                    
-                    // Calculate next index based on swipe direction
-                    let nextIndex;
-                    if (swipeDistance > 0) {
-                        // Swipe right - go to previous
-                        nextIndex = (currentStep - 1 + totalSteps) % totalSteps;
-                    } else {
-                        // Swipe left - go to next
-                        nextIndex = (currentStep + 1) % totalSteps;
+                    currentIndex++;
+                    if (currentIndex < sequenceItems.length) {
+                        showNextItem();
                     }
-                    
-                    // Check if nextIndex is valid before updating
-                    if (nextIndex >= 0 && nextIndex < totalSteps) {
-                        updateSequence(nextIndex);
-                        restartAutoRotationAfterDelay();
-                    }
-                }
-            }, { passive: true });
-
-            // Start auto-rotation when the section is in view
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        userInteracted = false; // Reset user interaction when section comes into view
-                        startAutoRotation();
-                    } else {
-                        pauseAutoRotation();
-                    }
-                });
-            }, { threshold: 0.3 });
-
-            observer.observe(textSequenceSection);
-
-            // Handle window resize - update container height rather than reloading
-            window.addEventListener('resize', () => {
-                setTimeout(updateContainerHeight, 200);
-            });
-
-            // Scroll and Key Navigation
-            let lastScrollPosition = window.pageYOffset;
-            let scrollThreshold = 50;
-            let scrollTimeout;
-
-            window.addEventListener('scroll', () => {
-                if (!textSequenceSection || isAnimating) return;
-
-                const rect = textSequenceSection.getBoundingClientRect();
-                if (rect.top < window.innerHeight && rect.bottom > 0) {
-                    clearTimeout(scrollTimeout);
-                    
-                    scrollTimeout = setTimeout(() => {
-                        const currentScrollPosition = window.pageYOffset;
-                        const scrollDifference = currentScrollPosition - lastScrollPosition;
-
-                        if (Math.abs(scrollDifference) > scrollThreshold) {
-                            pauseAutoRotation();
-                            const nextIndex = (currentStep + Math.sign(scrollDifference)) % totalSteps;
-                            if (nextIndex >= 0 && nextIndex < totalSteps) {
-                                updateSequence(nextIndex);
-                            }
-                            lastScrollPosition = currentScrollPosition;
-                        }
-                    }, 50);
-                }
-            });
-
-            // Keyboard Navigation
-            document.addEventListener('keydown', (e) => {
-                if (!textSequenceSection || isAnimating) return;
-                const rect = textSequenceSection.getBoundingClientRect();
-                
-                if (rect.top < window.innerHeight && rect.bottom > 0) {
-                    let nextIndex = currentStep;
-                    
-                    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
-                        nextIndex = (currentStep + 1) % totalSteps;
-                    } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
-                        nextIndex = (currentStep - 1 + totalSteps) % totalSteps;
-                    } else {
-                        return; // Not a navigation key
-                    }
-                    
-                    if (nextIndex >= 0 && nextIndex < totalSteps) {
-                        pauseAutoRotation();
-                        updateSequence(nextIndex);
-                        restartAutoRotationAfterDelay();
-                    }
-                }
-            });
-
-            // Typewriter effect for expertise quote
-            const quote = document.querySelector('.expertise-quote blockquote');
-            
-            if (quote) {
-                const text = "Die Neugierde treibt mich an. Ich suche Geschichten, die es wert sind, anderen darüber zu berichten. Dabei geht es immer um den Mehrwert. Es soll das Leben meiner Leserinnen und Leser bereichern.";
-                let charIndex = 0;
-                let isTypingComplete = false;
-                let cursorVisible = true;
-
-                // Cursor blink animation
-                setInterval(() => {
-                    if (isTypingComplete) {
-                        cursorVisible = !cursorVisible;
-                        quote.innerHTML = `${text}${cursorVisible ? '<span class="cursor">|</span>' : ''}`;
-                    }
-                }, 500);
-
-                function typeWriter() {
-                    if (charIndex < text.length) {
-                        quote.innerHTML = `${text.substring(0, charIndex + 1)}${cursorVisible ? '<span class="cursor">|</span>' : ''}`;
-                        charIndex++;
-                        
-                        // Schnellere Geschwindigkeit für das Tippen
-                        const delay = Math.random() * 30 + 20; // 20-50ms
-                        setTimeout(typeWriter, delay);
-                    } else {
-                        // Animation is complete, set flag
-                        isTypingComplete = true;
-                        // Display the full text with blinking cursor
-                        quote.innerHTML = `${text}${cursorVisible ? '<span class="cursor">|</span>' : ''}`;
-                        
-                        // Optional: After 5 seconds, hide the cursor completely
-                        setTimeout(() => {
-                            const cursorInterval = setInterval(() => {
-                                cursorVisible = !cursorVisible;
-                                if (!cursorVisible) {
-                                    quote.innerHTML = text;
-                                    clearInterval(cursorInterval);
-                                } else {
-                                    quote.innerHTML = `${text}<span class="cursor">|</span>`;
-                                }
-                            }, 500);
-                        }, 5000);
-                    }
-                }
-
-                // Ensure the element is ready and start animation
-                requestAnimationFrame(() => {
-                    quote.innerHTML = '<span class="cursor">|</span>';
-                    setTimeout(typeWriter, 1000);
-                });
+                }, 800);
             }
         }
+
+        // Start showing items when section comes into view
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting && currentIndex === 0) {
+                    showNextItem();
+                }
+            });
+        }, { threshold: 0.3 });
+
+        observer.observe(textSequenceSection);
     }
 });
 
