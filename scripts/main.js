@@ -250,49 +250,37 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Newsletter Form Handler
 document.addEventListener('DOMContentLoaded', () => {
-    const newsletterForm = document.getElementById('newsletter-form');
-    
-    if (newsletterForm) {
-        newsletterForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const emailInput = document.getElementById('newsletter-email');
-            const submitButton = newsletterForm.querySelector('button[type="submit"]');
-            const originalButtonText = submitButton.innerHTML;
-            
-            // Disable form while submitting
-            emailInput.disabled = true;
-            submitButton.disabled = true;
-            submitButton.innerHTML = '<span>Wird angemeldet...</span>';
-            
-            try {
-                const response = await fetch('/api/subscribe', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        email: emailInput.value
-                    })
-                });
+    // No additional implementation needed here - MailerLite Universal handles the form submission
+    // The form with class ml-form and data-code attribute will be automatically handled
 
-                const result = await response.json();
-
-                if (result.success) {
-                    alert('Vielen Dank für Ihre Anmeldung! Sie erhalten in Kürze eine Bestätigungs-E-Mail.');
-                    newsletterForm.reset();
-                } else {
-                    throw new Error(result.error || 'Anmeldung fehlgeschlagen');
-                }
-            } catch (error) {
-                console.error('Newsletter subscription error:', error);
-                alert('Es gab einen Fehler bei der Anmeldung. Bitte versuchen Sie es später erneut.');
-            } finally {
-                // Re-enable form
-                emailInput.disabled = false;
-                submitButton.disabled = false;
-                submitButton.innerHTML = originalButtonText;
-            }
-        });
-    }
+    // Show custom message function still available for other parts of the site
 });
+
+// Helper function to show messages
+function showMessage(message, type = 'success') {
+    // Remove any existing message
+    const existingMessage = document.querySelector('.message-overlay');
+    if (existingMessage) {
+        existingMessage.remove();
+    }
+
+    // Create message element
+    const messageElement = document.createElement('div');
+    messageElement.className = `message-overlay ${type}`;
+    messageElement.innerHTML = `
+        <div class="message-content">
+            <p>${message}</p>
+            <button onclick="this.parentElement.parentElement.remove()">Schließen</button>
+        </div>
+    `;
+
+    // Add to document
+    document.body.appendChild(messageElement);
+
+    // Auto-remove after 5 seconds
+    setTimeout(() => {
+        if (messageElement.parentElement) {
+            messageElement.remove();
+        }
+    }, 5000);
+}
