@@ -4,6 +4,11 @@ let lastScrollTop = 0;
 const nav = document.querySelector('.side-nav');
 let isNavVisible = true;
 
+// Initialize EmailJS when DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    emailjs.init("NOZFFA0R5jl9U2iWX");
+});
+
 // Ensure sequence items are visible
 function ensureSequenceItemsVisible() {
     const sequenceItems = document.querySelectorAll('.sequence-item');
@@ -214,6 +219,7 @@ document.addEventListener('DOMContentLoaded', () => {
             submitButton.disabled = true;
 
             try {
+                // Get form data
                 const formData = {
                     name: contactForm.querySelector('#name').value,
                     email: contactForm.querySelector('#email').value,
@@ -221,25 +227,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     message: contactForm.querySelector('#message').value
                 };
 
-                const response = await fetch('./api/contact', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(formData)
-                });
-
-                const result = await response.json();
-
-                if (result.success) {
-                    alert('Ihre Nachricht wurde erfolgreich gesendet!');
-                    contactForm.reset();
-                } else {
-                    throw new Error('Failed to send message');
-                }
+                // Send email using EmailJS
+                const response = await sendContactForm(formData);
+                
+                showMessage('Ihre Nachricht wurde erfolgreich gesendet!', 'success');
+                contactForm.reset();
             } catch (error) {
                 console.error('Error:', error);
-                alert('Es gab einen Fehler beim Senden Ihrer Nachricht. Bitte versuchen Sie es später erneut.');
+                showMessage('Es gab einen Fehler beim Senden Ihrer Nachricht. Bitte versuchen Sie es später erneut.', 'error');
             } finally {
                 submitButton.innerHTML = originalButtonText;
                 submitButton.disabled = false;
@@ -247,6 +242,32 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+
+// Function to send email via EmailJS
+async function sendContactForm(formData) {
+    try {
+        const response = await emailjs.send(
+            "service_f58c6lh", // Service ID
+            "template_3j6pvzg", // Template ID
+            {
+                from_name: formData.name,
+                from_email: formData.email,
+                subject: formData.subject,
+                message: formData.message,
+                to_email: "rz@rouvenzietz.de"
+            }
+        );
+        
+        if (response.status !== 200) {
+            throw new Error('Failed to send message');
+        }
+        
+        return response;
+    } catch (error) {
+        console.error('EmailJS error:', error);
+        throw error;
+    }
+}
 
 // Newsletter Form Handler
 document.addEventListener('DOMContentLoaded', () => {
