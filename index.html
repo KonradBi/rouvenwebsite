@@ -857,5 +857,65 @@ Geschichten und Worte, die wirken.</p>
             }
         }
     </style>
+
+    <script>
+        // Minimal Contact Form handler using EmailJS
+        document.addEventListener('DOMContentLoaded', function () {
+            try {
+                if (window.emailjs && emailjs.init) {
+                    emailjs.init('NOZFFA0R5jl9U2iWX');
+                }
+            } catch (e) {
+                console.error('EmailJS init failed:', e);
+            }
+
+            const form = document.getElementById('contact-form');
+            if (!form) return;
+
+            const submitButton = form.querySelector('.submit-button');
+            const originalHtml = submitButton ? submitButton.innerHTML : '';
+
+            form.addEventListener('submit', async function (e) {
+                e.preventDefault();
+
+                const name = form.querySelector('#name')?.value?.trim();
+                const email = form.querySelector('#email')?.value?.trim();
+                const subject = form.querySelector('#subject')?.value?.trim();
+                const message = form.querySelector('#message')?.value?.trim();
+
+                if (submitButton) {
+                    submitButton.disabled = true;
+                    submitButton.innerHTML = '<span>Wird gesendet...</span>';
+                }
+
+                try {
+                    const resp = await emailjs.send(
+                        'service_f58c6lh',
+                        'template_3j6pvzg',
+                        {
+                            from_name: name,
+                            from_email: email,
+                            subject: subject,
+                            message: message,
+                            to_email: 'rz@rouvenzietz.de'
+                        }
+                    );
+
+                    if (resp?.status !== 200) throw new Error('Send failed');
+
+                    alert('Danke! Ihre Nachricht wurde erfolgreich gesendet.');
+                    form.reset();
+                } catch (err) {
+                    console.error('Kontaktformular Fehler:', err);
+                    alert('Es gab einen Fehler beim Senden. Bitte später erneut versuchen.');
+                } finally {
+                    if (submitButton) {
+                        submitButton.disabled = false;
+                        submitButton.innerHTML = originalHtml;
+                    }
+                }
+            });
+        });
+    </script>
 </body>
 </html>

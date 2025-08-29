@@ -2254,6 +2254,37 @@ section {
     outline: none;
 }
 
+.input-wrapper select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml;utf8,<svg fill='%238a9a5b' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/><path d='M0 0h24v24H0z' fill='none'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 5px center;
+    background-size: 20px;
+    padding-right: 30px;
+    cursor: pointer;
+    border-radius: 0; /* Reset for iOS */
+}
+
+/* Fix for Firefox dotted outline */
+.input-wrapper select:-moz-focusring {
+    color: transparent;
+    text-shadow: 0 0 0 var(--color-black);
+}
+
+/* Fix for IE10+ */
+.input-wrapper select::-ms-expand {
+    display: none;
+}
+
+.input-wrapper select option {
+    padding: 10px;
+    font-size: 1.1rem;
+    background-color: white;
+    color: var(--color-black);
+}
+
 .input-wrapper label {
     position: absolute;
     left: 0;
@@ -2276,6 +2307,13 @@ section {
 .input-wrapper select:valid + label,
 .input-wrapper textarea:focus + label,
 .input-wrapper textarea:valid + label {
+    top: -10px;
+    font-size: 0.8rem;
+    color: var(--color-sage);
+}
+
+/* Make sure select element with non-default option shows label correctly */
+.input-wrapper select:not([value=""]):not(:focus) + label {
     top: -10px;
     font-size: 0.8rem;
     color: var(--color-sage);
@@ -2377,6 +2415,12 @@ section {
     .contact-form {
         padding: 1.5rem;
         margin: 0;
+    }
+    
+    .input-wrapper select {
+        font-size: 16px; /* Prevent zoom on iOS */
+        background-position: right 0 center;
+        background-size: 18px;
     }
 }
 
