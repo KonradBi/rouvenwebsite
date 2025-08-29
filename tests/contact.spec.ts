@@ -34,9 +34,9 @@ test('Contact form sends email via EmailJS', async ({ page }) => {
     await dialog.dismiss().catch(() => {});
   });
 
-  // Also wait for EmailJS network request as a success indicator
-  const waitForEmailJs = page.waitForResponse(
-    (res) => res.url().includes('emailjs') && res.request().method() === 'POST',
+  // Also wait for API contact request as a success indicator
+  const waitForContactApi = page.waitForResponse(
+    (res) => res.url().includes('/api/contact') && res.request().method() === 'POST',
     { timeout: 20000 }
   ).catch(() => null);
 
@@ -44,14 +44,14 @@ test('Contact form sends email via EmailJS', async ({ page }) => {
   await page.locator('#contact-form .submit-button').click();
 
   // Wait for either EmailJS POST or dialog/overlay
-  const emailResp = await waitForEmailJs;
+  const contactResp = await waitForContactApi;
 
   // Check for success overlay class if present on this version of the site
   const overlay = page.locator('.message-overlay.success');
   const overlayShown = await overlay.isVisible().catch(() => false);
 
   // Basic success heuristics
-  const emailOk = emailResp ? emailResp.ok() : false;
+  const emailOk = contactResp ? contactResp.ok() : false;
 
   if (!dialogText && !overlayShown && !emailOk) {
     // If none of the success indicators fired, consider it a failure
@@ -59,6 +59,5 @@ test('Contact form sends email via EmailJS', async ({ page }) => {
   }
 
   // If we reached here, at least one success indicator was observed
-  test.info().annotations.push({ type: 'info', description: `Dialog: ${dialogText ?? 'none'}, Overlay: ${overlayShown}, EmailJS OK: ${emailOk}` });
+  test.info().annotations.push({ type: 'info', description: `Dialog: ${dialogText ?? 'none'}, Overlay: ${overlayShown}, Contact API OK: ${emailOk}` });
 });
-
