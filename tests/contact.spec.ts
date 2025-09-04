@@ -1,10 +1,10 @@
 import { test, expect } from '@playwright/test';
 
-// NOTE: This test will send a real test email via EmailJS
-// destination configured on the live site. It submits the
-// contact form with a clear test message.
+// NOTE: This test will hit the live site and trigger a real contact submission
+// via the site's backend contact API. It submits the contact form with a clear
+// test message. Only run when you expect/allow a real email to be sent.
 
-test('Contact form sends email via EmailJS', async ({ page }) => {
+test('Contact form sends via backend contact API (live site)', async ({ page }) => {
   // Navigate to the live site
   await page.goto('https://www.rouvenzietz.de', { waitUntil: 'domcontentloaded' });
 
@@ -34,7 +34,7 @@ test('Contact form sends email via EmailJS', async ({ page }) => {
     await dialog.dismiss().catch(() => {});
   });
 
-  // Also wait for API contact request as a success indicator
+  // Also wait for backend contact request as a success indicator
   const waitForContactApi = page.waitForResponse(
     (res) => res.url().includes('/api/contact') && res.request().method() === 'POST',
     { timeout: 20000 }
@@ -43,7 +43,7 @@ test('Contact form sends email via EmailJS', async ({ page }) => {
   // Submit
   await page.locator('#contact-form .submit-button').click();
 
-  // Wait for either EmailJS POST or dialog/overlay
+  // Wait for either backend POST or dialog/overlay
   const contactResp = await waitForContactApi;
 
   // Check for success overlay class if present on this version of the site
@@ -55,7 +55,7 @@ test('Contact form sends email via EmailJS', async ({ page }) => {
 
   if (!dialogText && !overlayShown && !emailOk) {
     // If none of the success indicators fired, consider it a failure
-    throw new Error('No success indication detected (no alert, no overlay, no EmailJS POST).');
+    throw new Error('No success indication detected (no alert, no overlay, no contact API POST).');
   }
 
   // If we reached here, at least one success indicator was observed

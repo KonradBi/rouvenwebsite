@@ -225,40 +225,6 @@
                     </div>
                 </div>
             </div>
-            <script>
-                document.addEventListener('DOMContentLoaded', () => {
-                    const sequenceItems = document.querySelectorAll('.sequence-item');
-                    let observer = new IntersectionObserver((entries) => {
-                        entries.forEach(entry => {
-                            if (entry.isIntersecting) {
-                                // Start the animation sequence when the section is visible
-                                startSequence();
-                                observer.disconnect(); // Only trigger once
-                            }
-                        });
-                    }, { threshold: 0.3 });
-
-                    // Observe the first sequence item
-                    observer.observe(document.querySelector('.sequence-items-wrapper'));
-
-                    function startSequence() {
-                        sequenceItems.forEach((item, index) => {
-                            setTimeout(() => {
-                                item.classList.add('active');
-                                
-                                // Add subtle movement on hover
-                                item.addEventListener('mouseenter', () => {
-                                    item.style.transform = 'translateY(-5px)';
-                                });
-                                
-                                item.addEventListener('mouseleave', () => {
-                                    item.style.transform = 'translateY(0)';
-                                });
-                            }, index * 800); // Stagger the animations
-                        });
-                    }
-                });
-            </script>
         </section>
 
         <!-- Portfolio-Sektion -->
@@ -335,81 +301,7 @@
         <!-- Overlay und Close Button für Portfolio -->
         <div class="overlay"></div>
         <button class="close-button">&times;</button>
-
-        <script>
-            document.addEventListener('DOMContentLoaded', () => {
-                const portfolioItems = document.querySelectorAll('.portfolio-item');
-                const overlay = document.querySelector('.overlay');
-                const closeButton = document.querySelector('.close-button');
-                const portfolioRows = document.querySelectorAll('.portfolio-row-inner');
-                let currentZoomedItem = null;
-                
-                // Pause animations when hovering over items
-                portfolioItems.forEach(item => {
-                    item.addEventListener('mouseenter', () => {
-                        portfolioRows.forEach(row => {
-                            row.classList.add('paused');
-                        });
-                    });
-                    
-                    item.addEventListener('mouseleave', () => {
-                        if (!currentZoomedItem) {
-                            portfolioRows.forEach(row => {
-                                row.classList.remove('paused');
-                            });
-                        }
-                    });
-                    
-                    // Add click event to open the articles
-                    item.addEventListener('click', () => {
-                        // Pause the portfolio row animations
-                        portfolioRows.forEach(row => {
-                            row.classList.add('paused');
-                        });
-                        
-                        const articleId = item.getAttribute('data-article-id');
-                        const img = item.querySelector('img');
-                        
-                        // Create a larger version of the image
-                        overlay.innerHTML = `<img src="${img.src}" alt="${img.alt}" class="lightbox-image">`;
-                        
-                        // Show overlay and close button
-                        overlay.classList.add('active');
-                        closeButton.classList.add('active');
-                        currentZoomedItem = item;
-                        
-                        // Prevent body scrolling
-                        document.body.style.overflow = 'hidden';
-                    });
-                });
-                
-                // Close overlay when clicking close button or background
-                closeButton.addEventListener('click', closeOverlay);
-                overlay.addEventListener('click', (e) => {
-                    if (e.target === overlay) closeOverlay();
-                });
-                
-                // Close on Escape key
-                document.addEventListener('keydown', (e) => {
-                    if (e.key === 'Escape') closeOverlay();
-                });
-                
-                function closeOverlay() {
-                    if (!currentZoomedItem) return;
-                    
-                    overlay.classList.remove('active');
-                    closeButton.classList.remove('active');
-                    document.body.style.overflow = '';
-                    
-                    // Resume animations
-                    portfolioRows.forEach(row => {
-                        row.classList.remove('paused');
-                    });
-                    
-                    currentZoomedItem = null;
-                }
-            });
-        </script>
+        
 
         <!-- About-Sektion -->
         <section id="about">
@@ -491,70 +383,6 @@ Seit 2017 arbeite ich wieder als freier Journalist.</p>
             
             <div id="newsletter-message" class="newsletter-message"></div>
             
-            <script>
-                document.addEventListener('DOMContentLoaded', () => {
-                    const form = document.getElementById('newsletter-form');
-                    const messageElement = document.getElementById('newsletter-message');
-                    
-                    if (form) {
-                        form.addEventListener('submit', async (e) => {
-                            e.preventDefault();
-                            
-                            const emailInput = document.getElementById('newsletter-email');
-                            const email = emailInput.value.trim();
-                            const submitButton = form.querySelector('button[type="submit"]');
-                            
-                            if (!email) {
-                                showMessage('Bitte geben Sie Ihre E-Mail-Adresse ein.', 'error');
-                                return;
-                            }
-                            
-                            // Disable the button and show loading state
-                            submitButton.disabled = true;
-                            submitButton.innerHTML = '<span>Wird verarbeitet...</span>';
-                            
-                            try {
-                                const response = await fetch('/api/subscribe', {
-                                    method: 'POST',
-                                    headers: {
-                                        'Content-Type': 'application/json',
-                                    },
-                                    body: JSON.stringify({ email }),
-                                });
-                                
-                                const data = await response.json();
-                                
-                                if (response.ok) {
-                                    showMessage(data.message || 'Vielen Dank für Ihre Anmeldung!', 'success');
-                                    form.reset();
-                                } else {
-                                    showMessage(data.error || 'Es ist ein Fehler aufgetreten. Bitte versuchen Sie es später erneut.', 'error');
-                                }
-                            } catch (error) {
-                                console.error('Newsletter subscription error:', error);
-                                showMessage('Es ist ein Fehler aufgetreten. Bitte versuchen Sie es später erneut.', 'error');
-                            } finally {
-                                // Reset button state
-                                submitButton.disabled = false;
-                                submitButton.innerHTML = '<span>Newsletter empfangen</span><span class="arrow">→</span>';
-                            }
-                        });
-                    }
-                    
-                    function showMessage(message, type) {
-                        if (messageElement) {
-                            messageElement.textContent = message;
-                            messageElement.className = `newsletter-message ${type}`;
-                            messageElement.style.display = 'block';
-                            
-                            // Hide message after 5 seconds
-                            setTimeout(() => {
-                                messageElement.style.display = 'none';
-                            }, 5000);
-                        }
-                    }
-                });
-            </script>
         </section>
 
         <!-- Mood-Sektion -->
@@ -858,56 +686,8 @@ Geschichten und Worte, die wirken.</p>
         }
     </style>
 
-    <script>
-        // Minimal Contact Form handler using Vercel API
-        document.addEventListener('DOMContentLoaded', function () {
-            const form = document.getElementById('contact-form');
-            if (!form) return;
-
-            const submitButton = form.querySelector('.submit-button');
-            const originalHtml = submitButton ? submitButton.innerHTML : '';
-
-            form.addEventListener('submit', async function (e) {
-                e.preventDefault();
-
-                const name = form.querySelector('#name')?.value?.trim();
-                const email = form.querySelector('#email')?.value?.trim();
-                const subject = form.querySelector('#subject')?.value?.trim();
-                const message = form.querySelector('#message')?.value?.trim();
-
-                if (!name || !email || !subject || !message) {
-                    alert('Bitte füllen Sie alle Felder aus.');
-                    return;
-                }
-
-                if (submitButton) {
-                    submitButton.disabled = true;
-                    submitButton.innerHTML = '<span>Wird gesendet...</span>';
-                }
-
-                try {
-                    const resp = await fetch('/api/contact', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ name, email, subject, message })
-                    });
-                    const data = await resp.json().catch(() => ({}));
-                    if (!resp.ok || data?.success === false) {
-                        throw new Error(data?.error || 'Send failed');
-                    }
-                    alert('Danke! Ihre Nachricht wurde erfolgreich gesendet.');
-                    form.reset();
-                } catch (err) {
-                    console.error('Kontaktformular Fehler:', err);
-                    alert('Es gab einen Fehler beim Senden. Bitte später erneut versuchen.');
-                } finally {
-                    if (submitButton) {
-                        submitButton.disabled = false;
-                        submitButton.innerHTML = originalHtml;
-                    }
-                }
-            });
-        });
-    </script>
+    
+    <!-- Consolidated frontend logic -->
+    <script src="/scripts/main.js" defer></script>
 </body>
 </html>

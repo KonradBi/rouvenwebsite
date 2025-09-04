@@ -4,10 +4,7 @@ let lastScrollTop = 0;
 const nav = document.querySelector('.side-nav');
 let isNavVisible = true;
 
-// Initialize EmailJS when DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
-    emailjs.init("NOZFFA0R5jl9U2iWX");
-});
+// EmailJS initialization removed; using server-side email via /api/contact (Resend)
 
 // Ensure sequence items are visible
 function ensureSequenceItemsVisible() {
@@ -227,8 +224,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     message: contactForm.querySelector('#message').value
                 };
 
-                // Send email using EmailJS
-                const response = await sendContactForm(formData);
+                // Send email via backend API (Resend)
+                await sendContactForm(formData);
                 
                 showMessage('Ihre Nachricht wurde erfolgreich gesendet!', 'success');
                 contactForm.reset();
@@ -243,28 +240,28 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// Function to send email via EmailJS
+// Function to send email via backend API (Resend)
 async function sendContactForm(formData) {
     try {
-        const response = await emailjs.send(
-            "service_f58c6lh", // Service ID
-            "template_3j6pvzg", // Template ID
-            {
-                from_name: formData.name,
-                from_email: formData.email,
+        const resp = await fetch('/api/contact', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                name: formData.name,
+                email: formData.email,
                 subject: formData.subject,
-                message: formData.message,
-                to_email: "rz@rouvenzietz.de"
-            }
-        );
+                message: formData.message
+            })
+        });
         
-        if (response.status !== 200) {
-            throw new Error('Failed to send message');
+        const data = await resp.json().catch(() => ({}));
+        if (!resp.ok || data?.success === false) {
+            throw new Error(data?.error || 'Failed to send message');
         }
         
-        return response;
+        return data;
     } catch (error) {
-        console.error('EmailJS error:', error);
+        console.error('Contact API error:', error);
         throw error;
     }
 }
