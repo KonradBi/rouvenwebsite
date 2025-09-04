@@ -13,32 +13,7 @@
     <link rel="stylesheet" href="/styles/responsive.css">
     <link rel="icon" type="image/png" href="/images/Logo-rz.png">
     
-    
-    <!-- Google Fonts will be loaded dynamically based on consent -->
-    <script>
-        function loadGoogleFonts() {
-            const link1 = document.createElement('link');
-            link1.rel = 'preconnect';
-            link1.href = 'https://fonts.googleapis.com';
-            document.head.appendChild(link1);
-
-            const link2 = document.createElement('link');
-            link2.rel = 'preconnect';
-            link2.href = 'https://fonts.gstatic.com';
-            link2.crossOrigin = 'anonymous';
-            document.head.appendChild(link2);
-
-            const link3 = document.createElement('link');
-            link3.rel = 'stylesheet';
-            link3.href = 'https://fonts.googleapis.com/css2?family=Courier+New:wght@400;700&family=Times+New+Roman:wght@400;700&display=swap';
-            document.head.appendChild(link3);
-        }
-
-        // Check consent status on page load
-        if (localStorage.getItem('cookieConsent') === 'accepted') {
-            loadGoogleFonts();
-        }
-    </script>
+    <!-- Google Fonts and cookie consent are handled by /scripts/main.js -->
     <style>
         /* Fallback fonts if Google Fonts are rejected */
         @font-face {
@@ -567,47 +542,7 @@ Geschichten und Worte, die wirken.</p>
         </div>
     </div>
 
-    <script>
-        // Cookie Consent Handler
-        document.addEventListener('DOMContentLoaded', function() {
-            const cookieBanner = document.getElementById('cookie-banner');
-            const acceptButton = document.getElementById('accept-cookies');
-            const rejectButton = document.getElementById('reject-cookies');
-
-            function setCookie(name, value, days) {
-                let expires = "";
-                if (days) {
-                    const date = new Date();
-                    date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
-                    expires = "; expires=" + date.toUTCString();
-                }
-                document.cookie = name + "=" + (value || "") + expires + "; path=/; SameSite=Lax";
-            }
-
-            // Show banner if no choice has been made
-            if (!localStorage.getItem('cookieConsent')) {
-                cookieBanner.style.display = 'block';
-            }
-
-            acceptButton.addEventListener('click', function() {
-                localStorage.setItem('cookieConsent', 'accepted');
-                setCookie('cookieConsent', 'accepted', 365); // Cookie für 1 Jahr
-                setCookie('necessaryCookies', 'true', 365);
-                cookieBanner.style.display = 'none';
-                loadGoogleFonts();
-            });
-
-            rejectButton.addEventListener('click', function() {
-                localStorage.setItem('cookieConsent', 'rejected');
-                setCookie('cookieConsent', 'rejected', 365); // Cookie für 1 Jahr
-                setCookie('necessaryCookies', 'true', 365);
-                cookieBanner.style.display = 'none';
-                // Remove any existing Google Fonts if they were loaded
-                document.querySelectorAll('link[href*="fonts.googleapis.com"], link[href*="fonts.gstatic.com"]')
-                    .forEach(link => link.remove());
-            });
-        });
-    </script>
+    <!-- Cookie consent behavior is handled by /scripts/main.js -->
 
     <style>
         #cookie-banner {

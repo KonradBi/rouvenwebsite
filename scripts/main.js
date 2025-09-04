@@ -6,6 +6,30 @@ let isNavVisible = true;
 
 // EmailJS initialization removed; using server-side email via /api/contact (Resend)
 
+// Cookie Consent: Load Google Fonts dynamically when consent is accepted
+function loadGoogleFonts() {
+    // Avoid duplicating font links
+    if (document.querySelector('link[href*="fonts.googleapis.com"]')) return;
+
+    const link1 = document.createElement('link');
+    link1.rel = 'preconnect';
+    link1.href = 'https://fonts.googleapis.com';
+    document.head.appendChild(link1);
+
+    const link2 = document.createElement('link');
+    link2.rel = 'preconnect';
+    link2.href = 'https://fonts.gstatic.com';
+    link2.crossOrigin = 'anonymous';
+    document.head.appendChild(link2);
+
+    const link3 = document.createElement('link');
+    link3.rel = 'stylesheet';
+    link3.href = 'https://fonts.googleapis.com/css2?family=Courier+New:wght@400;700&family=Times+New+Roman:wght@400;700&display=swap';
+    document.head.appendChild(link3);
+}
+// Expose for any inline usage (legacy)
+window.loadGoogleFonts = loadGoogleFonts;
+
 // Ensure sequence items are visible
 function ensureSequenceItemsVisible() {
     const sequenceItems = document.querySelectorAll('.sequence-item');
@@ -23,41 +47,43 @@ function ensureSequenceItemsVisible() {
 // Set a backup timeout to force display of sequence items
 setTimeout(ensureSequenceItemsVisible, 2000);
 
-// Scroll-Event-Handler für Navigation
-window.addEventListener('scroll', () => {
-    const currentScroll = window.pageYOffset || document.documentElement.scrollTop;
-    
-    // Bestimme Scroll-Richtung und verstecke Navigation
-    if (currentScroll > lastScrollTop) {
-        // Scrolling nach unten
-        nav.classList.add('hidden');
-        isNavVisible = false;
-    } else {
-        // Scrolling nach oben
-        nav.classList.add('hidden');
-        isNavVisible = false;
-    }
-    
-    lastScrollTop = currentScroll <= 0 ? 0 : currentScroll;
-    
-    // Clear bestehenden Timer
-    clearTimeout(isScrolling);
-    
-    // Setze neuen Timer
-    isScrolling = setTimeout(() => {
-        nav.classList.remove('hidden');
-        isNavVisible = true;
-    }, 2000); // 2 Sekunden Verzögerung
-});
-
-// Touch-Events für Mobile
-if (window.innerWidth <= 768) {
-    nav.addEventListener('touchstart', () => {
-        if (!isNavVisible) {
+// Scroll-Event-Handler für Navigation (nur wenn Navigation existiert)
+if (nav) {
+    window.addEventListener('scroll', () => {
+        const currentScroll = window.pageYOffset || document.documentElement.scrollTop;
+        
+        // Bestimme Scroll-Richtung und verstecke Navigation
+        if (currentScroll > lastScrollTop) {
+            // Scrolling nach unten
+            nav.classList.add('hidden');
+            isNavVisible = false;
+        } else {
+            // Scrolling nach oben
+            nav.classList.add('hidden');
+            isNavVisible = false;
+        }
+        
+        lastScrollTop = currentScroll <= 0 ? 0 : currentScroll;
+        
+        // Clear bestehenden Timer
+        clearTimeout(isScrolling);
+        
+        // Setze neuen Timer
+        isScrolling = setTimeout(() => {
             nav.classList.remove('hidden');
             isNavVisible = true;
-        }
+        }, 2000); // 2 Sekunden Verzögerung
     });
+
+    // Touch-Events für Mobile
+    if (window.innerWidth <= 768) {
+        nav.addEventListener('touchstart', () => {
+            if (!isNavVisible) {
+                nav.classList.remove('hidden');
+                isNavVisible = true;
+            }
+        });
+    }
 }
 
 // Portfolio Funktionalität
@@ -127,28 +153,34 @@ document.addEventListener('DOMContentLoaded', () => {
             currentZoomedItem = null;
     };
     
-    closeButton.addEventListener('click', closeOverlay);
-    overlay.addEventListener('click', (e) => {
-        if (e.target === overlay) closeOverlay();
-    });
+    if (closeButton) {
+        closeButton.addEventListener('click', closeOverlay);
+    }
+    if (overlay) {
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) closeOverlay();
+        });
+    }
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') closeOverlay();
     });
     
     // Mobile swipe to close
     let touchStartX = 0;
-    overlay.addEventListener('touchstart', (e) => {
-        touchStartX = e.touches[0].clientX;
-    }, { passive: true });
-    
-    overlay.addEventListener('touchend', (e) => {
-        const touchEndX = e.changedTouches[0].clientX;
-        const swipeDistance = Math.abs(touchEndX - touchStartX);
+    if (overlay) {
+        overlay.addEventListener('touchstart', (e) => {
+            touchStartX = e.touches[0].clientX;
+        }, { passive: true });
         
-        if (swipeDistance > 50) {
-            closeOverlay();
-        }
-    }, { passive: true });
+        overlay.addEventListener('touchend', (e) => {
+            const touchEndX = e.changedTouches[0].clientX;
+            const swipeDistance = Math.abs(touchEndX - touchStartX);
+            
+            if (swipeDistance > 50) {
+                closeOverlay();
+            }
+        }, { passive: true });
+    }
 
     // Text-Sequence Animation
     const textSequenceSection = document.querySelector('#text-sequence');
@@ -341,6 +373,63 @@ document.addEventListener('DOMContentLoaded', () => {
                 submitButton.disabled = false;
                 submitButton.innerHTML = originalButtonText;
             }
+        });
+    }
+});
+
+// Cookie Consent Handler (centralized)
+document.addEventListener('DOMContentLoaded', function() {
+    const cookieBanner = document.getElementById('cookie-banner');
+    const acceptButton = document.getElementById('accept-cookies');
+    const rejectButton = document.getElementById('reject-cookies');
+
+    function setCookie(name, value, days) {
+        let expires = "";
+        if (days) {
+            const date = new Date();
+            date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+            expires = "; expires=" + date.toUTCString();
+        }
+        document.cookie = name + "=" + (value || "") + expires + "; path=/; SameSite=Lax";
+    }
+
+    // If no banner on this page, still honor consent for fonts
+    if (!cookieBanner) {
+        if (localStorage.getItem('cookieConsent') === 'accepted') {
+            loadGoogleFonts();
+        }
+        return;
+    }
+
+    // Show or hide banner depending on previous choice
+    if (!localStorage.getItem('cookieConsent')) {
+        cookieBanner.style.display = 'block';
+    } else {
+        cookieBanner.style.display = 'none';
+        if (localStorage.getItem('cookieConsent') === 'accepted') {
+            loadGoogleFonts();
+        } else {
+            document.querySelectorAll('link[href*="fonts.googleapis.com"], link[href*="fonts.gstatic.com"]').forEach(link => link.remove());
+        }
+    }
+
+    if (acceptButton) {
+        acceptButton.addEventListener('click', function() {
+            localStorage.setItem('cookieConsent', 'accepted');
+            setCookie('cookieConsent', 'accepted', 365);
+            setCookie('necessaryCookies', 'true', 365);
+            cookieBanner.style.display = 'none';
+            loadGoogleFonts();
+        });
+    }
+
+    if (rejectButton) {
+        rejectButton.addEventListener('click', function() {
+            localStorage.setItem('cookieConsent', 'rejected');
+            setCookie('cookieConsent', 'rejected', 365);
+            setCookie('necessaryCookies', 'true', 365);
+            cookieBanner.style.display = 'none';
+            document.querySelectorAll('link[href*="fonts.googleapis.com"], link[href*="fonts.gstatic.com"]').forEach(link => link.remove());
         });
     }
 });
