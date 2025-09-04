@@ -57,7 +57,7 @@ export default async function handler(req, res) {
       return res.status(500).json({ success: false, error: data?.message || 'Failed to send email' });
     }
 
-    return res.status(200).json({ success: true, id: data.id });
+    return res.status(200).json({ success: true, id: data.id, message: 'Danke! Ihre Nachricht wurde erfolgreich gesendet.' });
   } catch (error) {
     console.error('Contact API error:', error);
     return res.status(500).json({ success: false, error: 'Internal server error' });

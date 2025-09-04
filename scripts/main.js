@@ -212,6 +212,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const submitButton = contactForm.querySelector('.submit-button');
             const originalButtonText = submitButton.innerHTML;
+            const inlineMsgEl = document.getElementById('contact-message');
+            if (inlineMsgEl) {
+                inlineMsgEl.style.display = 'none';
+                inlineMsgEl.textContent = '';
+                inlineMsgEl.className = 'contact-message';
+            }
             submitButton.innerHTML = '<span>Wird gesendet...</span>';
             submitButton.disabled = true;
 
@@ -227,11 +233,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Send email via backend API (Resend)
                 await sendContactForm(formData);
                 
-                showMessage('Ihre Nachricht wurde erfolgreich gesendet!', 'success');
+                // Prefer inline confirmation message beneath the form
+                if (inlineMsgEl) {
+                    inlineMsgEl.textContent = 'Danke! Ihre Nachricht wurde erfolgreich gesendet.';
+                    inlineMsgEl.classList.add('success');
+                    inlineMsgEl.style.display = 'block';
+                } else {
+                    // Fallback overlay
+                    showMessage('Ihre Nachricht wurde erfolgreich gesendet!', 'success');
+                }
                 contactForm.reset();
             } catch (error) {
                 console.error('Error:', error);
-                showMessage('Es gab einen Fehler beim Senden Ihrer Nachricht. Bitte versuchen Sie es später erneut.', 'error');
+                if (inlineMsgEl) {
+                    inlineMsgEl.textContent = 'Es gab einen Fehler beim Senden. Bitte versuchen Sie es später erneut.';
+                    inlineMsgEl.classList.add('error');
+                    inlineMsgEl.style.display = 'block';
+                } else {
+                    showMessage('Es gab einen Fehler beim Senden Ihrer Nachricht. Bitte versuchen Sie es später erneut.', 'error');
+                }
             } finally {
                 submitButton.innerHTML = originalButtonText;
                 submitButton.disabled = false;
